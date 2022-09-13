@@ -1,0 +1,17 @@
+--atlas -f rgba8888 -z auto
+backgrounds/background_top.png
+backgrounds/background_bot.png
+backgrounds/bg_moving_top_1.png
+backgrounds/bg_moving_top_2.png
+backgrounds/bg_moving_bot_1.png
+backgrounds/bg_moving_bot_2.png
+ships/enemy1.png
+ships/enemy2.png
+ships/enemy3.png
+ships/player.png
+projectiles/bullet.png
+projectiles/heavy_bullet.png
+projectiles/bomb.png
+projectiles/enemy_bullet.png
+ui/bottom_bar.png
+ui/selector.png
