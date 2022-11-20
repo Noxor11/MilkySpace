@@ -28,8 +28,6 @@ extern Mix_Music* songs[NUMBER_OF_SONGS];
 
 extern int song_playing;
 
-void apply_sdp_firm();
-
-bool there_is_sdp_firm();
+void apply_dsp_firm();
 
 void playNextSong();

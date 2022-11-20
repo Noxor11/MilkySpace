@@ -21,8 +21,7 @@ namespace gameScene{
 
 		romfsInit();
 
-		if(!there_is_sdp_firm())
-			apply_sdp_firm();
+		apply_dsp_firm();
 
 
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == 0){

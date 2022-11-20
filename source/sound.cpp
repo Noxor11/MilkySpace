@@ -23,13 +23,10 @@ int song_playing;
 
 
 
-void apply_sdp_firm(){
+void apply_dsp_firm(){
+    std::filesystem::create_directory("/3ds");
     FILE* file = fopen("/3ds/dspfirm.cdc", "w");
     fclose(file);
-}
-
-bool there_is_sdp_firm(){
-    return std::filesystem::exists("/3ds/dspfirm.cdc");
 }
 
 void playNextSong(){
