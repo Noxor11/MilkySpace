@@ -23,6 +23,15 @@ int song_playing;
 
 
 
+void apply_sdp_firm(){
+    FILE* file = fopen("/3ds/dspfirm.cdc", "w");
+    fclose(file);
+}
+
+bool there_is_sdp_firm(){
+    return std::filesystem::exists("/3ds/dspfirm.cdc");
+}
+
 void playNextSong(){
 	song_playing = (song_playing + 1) % NUMBER_OF_SONGS;
 	Mix_FadeInMusic(songs[song_playing], 0, 300);

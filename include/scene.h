@@ -3,6 +3,7 @@
 #include "gameObject.h"
 #include "gameThreads.h"
 #include "textScene.h"
+#include "sound.h"
 
 #include <SDL.h>
 #include <SDL_audio.h>

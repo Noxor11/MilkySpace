@@ -19,6 +19,12 @@ namespace gameScene{
 
 	int initScene() {
 
+		romfsInit();
+
+		if(!there_is_sdp_firm())
+			apply_sdp_firm();
+
+
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == 0){
 			printf("There was an error. %s", SDL_GetError());
 			sleep(3);
@@ -29,7 +35,6 @@ namespace gameScene{
 
 		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048);
 		
-		romfsInit();
 		cfguInit(); // Allow C2D_FontLoadSystem to work
 		gfxInitDefault();
 		textScene::initTextScene();

@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_audio.h>
 #include <SDL_mixer.h>
+#include <filesystem>
 
 #define NUMBER_OF_SONGS 7
 
@@ -27,7 +28,8 @@ extern Mix_Music* songs[NUMBER_OF_SONGS];
 
 extern int song_playing;
 
+void apply_sdp_firm();
 
-void playMusicOnLoop();
+bool there_is_sdp_firm();
 
 void playNextSong();
