@@ -1,18 +1,20 @@
+#pragma once
+
 #include "ship.h"
 #include "global.h"
 
 #include <random>
 
 
-struct Trace{
-    float xPos;
-    float yPos;
-};
-
 
 class Enemy : public Ship{
     
 private:
+
+    struct Trace{
+        float xPos;
+        float yPos;
+    };
 
     Trace trace;
 
