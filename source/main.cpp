@@ -137,7 +137,9 @@ void startNewRound(std::vector<Enemy>& enemies){
 	}
 }
 
-void setupGame(Ship& player, std::vector<Enemy>& enemies, std::vector<std::shared_ptr<Projectile>>& projectiles, std::vector<std::shared_ptr<Projectile>>& enemy_projectiles){
+void setupGame(Ship& player, std::vector<Enemy>& enemies,
+				std::vector<std::shared_ptr<Projectile>>& projectiles,
+				std::vector<std::shared_ptr<Projectile>>& enemy_projectiles){
 	player.setLife(10);
 	player.setPos(BOTTOM_WIDTH_CENTER - player.width() / 2, BOTTOM_HEIGHT_CENTER - player.height() / 2);
 
@@ -164,7 +166,7 @@ void moveBackground(Object* bg, Object* bg_copy, float velocity, int screen_widt
 	}
 }
 
-int checkBulletColission(std::shared_ptr<Projectile> bullet, std::vector<Enemy>& enemies){
+int checkBulletColission(Projectile* bullet, std::vector<Enemy>& enemies){
 	for(int i = 0; i < (int)enemies.size() ; i++){
 		bool collision_Y = bullet->real_py() + bullet->height() > enemies[i].real_py() &&
 						   bullet->real_py() < enemies[i].real_py() + enemies[i].height();
@@ -181,7 +183,7 @@ int checkBulletColission(std::shared_ptr<Projectile> bullet, std::vector<Enemy>&
 	return -1;
 }
 
-bool checkBulletColission(std::shared_ptr<Projectile> bullet, Ship& player){
+bool checkBulletColission(Projectile* bullet, Ship& player){
 	bool collision_Y = bullet->real_py() + bullet->height() > player.real_py() &&
 						bullet->real_py() < player.real_py() + player.height() / 2;
 
@@ -554,9 +556,7 @@ int main(){
 					game_state = PAUSE;
 				}
 				
-				if(kDown & KEY_A){
-
-					
+				if(kHeld & KEY_A){
 					if(canShoot){
 						std::shared_ptr<Projectile> p = player.shoot();
 						p->setDisplayOnBottom(true);
@@ -565,13 +565,11 @@ int main(){
 						puts("Fire!");
 						canShoot = false;
 					}
-
 				}
 
 				
 				if(kDown & KEY_B){
 					//player.shootBomb()
-
 				}
 
 				if(kDown & KEY_R){
@@ -661,7 +659,7 @@ int main(){
 								projectiles.erase(projectiles.begin() + i);
 							} else{
 								projectiles[i]->moveYBy(projectiles[i]->getVelocity());
-								int ship_collided = checkBulletColission(projectiles[i], enemies);
+								int ship_collided = checkBulletColission(projectiles[i].get(), enemies);
 								if(ship_collided >= 0){
 									if(gameTime() < 60)
 										score += 300;
@@ -745,7 +743,7 @@ int main(){
 
 								
 								enemy_projectiles[i]->moveYBy(enemy_projectiles[i]->getVelocity());
-								if(checkBulletColission(enemy_projectiles[i], player)){
+								if(checkBulletColission(enemy_projectiles[i].get(), player)){
 									enemy_projectiles.erase(enemy_projectiles.begin() + i);							
 
 									
