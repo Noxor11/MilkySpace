@@ -18,8 +18,8 @@ public:
 	Projectile(C2D_SpriteSheet* spriteSheet, int index, float damage, float velocity);
 	Projectile(C2D_Image img);
 
-    bool isDisplayOnBottom();
-    bool isDisplayOnTop();
+    bool shouldDisplayOnBottom();
+    bool shouldDisplayOnTop();
 
     float getDamage();
     void setDamage(float damage);

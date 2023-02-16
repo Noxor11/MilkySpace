@@ -30,8 +30,8 @@ Projectile::Projectile(C2D_Image img) : Object::Object(img){
 
 
 
-bool Projectile::isDisplayOnBottom(){ return displayOnBottom; }
-bool Projectile::isDisplayOnTop(){ return displayOnTop; }
+bool Projectile::shouldDisplayOnBottom(){ return displayOnBottom; }
+bool Projectile::shouldDisplayOnTop(){ return displayOnTop; }
 
 float Projectile::getDamage(){ return damage; }
 

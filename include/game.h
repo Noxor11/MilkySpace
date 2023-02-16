@@ -137,6 +137,9 @@ private:
     bool checkBulletColission(Projectile* bullet, Ship& player);
     void checkEnemyCollision(std::vector<Ship>& enemies);
     void changeGameStateTo(GameState state);
+    void updateScoreOnHit();
+    void checkInGamePlayerInput();
+    void drawHealthBar();
 
     void applySettings();
 
@@ -144,7 +147,7 @@ private:
     void moveAllBackgroundsWithVelocity(float vFirst, float vSecond);
 
     void drawBackgroundTop();
-    void drawBackgroundBot();
+    void drawBackgroundBottom();
 
     void handle_MENU();
     void handle_GAME();
