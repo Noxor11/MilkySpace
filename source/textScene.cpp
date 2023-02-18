@@ -1,52 +1,62 @@
 #include "textScene.h"
 
+#define TEXT_LINES 21
+
 C2D_TextBuf g_staticBuf;
-std::array<C2D_Text, 21> g_staticText;
+std::array<C2D_Text, TEXT_LINES> g_staticText;
 std::array<C2D_Text, 10> scoreNumberText;
+
 C2D_Font font;
 
+struct json_language{
+	u8 json_code;
+	std::unordered_map<std::string, const char*> strings; 
+};
 
-
+std::unordered_map<u8, json_language> languages;
+json_language* current_language;
 
 
 namespace textScene{
 
-	void initTextScene(void)
-	{
+	void initTextScene(u8 language_code){
+
+		initLanguageFonts(language_code);
+
 		g_staticBuf = C2D_TextBufNew(4096); // support up to 4096 glyphs in the buffer
 		font = C2D_FontLoad("romfs:/gfx/OmegleRegular-owopB.bcfnt");
 
 
 		//	------------------------------Set strings---------------------------------
-		C2D_TextFontParse(&g_staticText[PLAY], 			font, g_staticBuf, "Play");
-		C2D_TextFontParse(&g_staticText[SETTINGS_TXT], 	font, g_staticBuf, "Settings");
-		C2D_TextFontParse(&g_staticText[NEXT_SONG_TXT], font, g_staticBuf, "Next Song");
-		C2D_TextFontParse(&g_staticText[SCORE], 		font, g_staticBuf, "Score:");
-		C2D_TextFontParse(&g_staticText[TITLE], 		font, g_staticBuf, "The Milky Way\n   Is Far Away");
-        C2D_TextFontParse(&g_staticText[COLON], 		font, g_staticBuf, ":");
-        C2D_TextFontParse(&g_staticText[TIME], 			font, g_staticBuf, "Time survived:");
-        C2D_TextFontParse(&g_staticText[TRY_AGAIN], 	font, g_staticBuf, "Try again");
-        C2D_TextFontParse(&g_staticText[GO_BACK], 		font, g_staticBuf, "Go back to menu");
-        C2D_TextFontParse(&g_staticText[YOU_WON], 		font, g_staticBuf, "You won!");
-		C2D_TextFontParse(&g_staticText[YOU_LOST], 		font, g_staticBuf, "You lost.");
-        C2D_TextFontParse(&g_staticText[ROUND], 		font, g_staticBuf, "Round:");
-        C2D_TextFontParse(&g_staticText[NEW_HIGHSCORE], font, g_staticBuf, "New Highscore!");
-        C2D_TextFontParse(&g_staticText[NEW_BEST_TIME], font, g_staticBuf, "New Best Time!");
+		C2D_TextFontParse(&g_staticText[PLAY], 			font, g_staticBuf, current_language->strings["play"]);
+		C2D_TextFontParse(&g_staticText[SETTINGS_TXT], 	font, g_staticBuf, current_language->strings["settings"]);
+		C2D_TextFontParse(&g_staticText[NEXT_SONG_TXT], font, g_staticBuf, current_language->strings["next_song"]);
+		C2D_TextFontParse(&g_staticText[SCORE], 		font, g_staticBuf, current_language->strings["score"]);
+		C2D_TextFontParse(&g_staticText[TITLE], 		font, g_staticBuf, current_language->strings["title"]);
+        C2D_TextFontParse(&g_staticText[COLON], 		font, g_staticBuf, current_language->strings["colon"]);
+        C2D_TextFontParse(&g_staticText[TIME], 			font, g_staticBuf, current_language->strings["time_survived"]);
+        C2D_TextFontParse(&g_staticText[TRY_AGAIN], 	font, g_staticBuf, current_language->strings["try_again"]);
+        C2D_TextFontParse(&g_staticText[GO_BACK], 		font, g_staticBuf, current_language->strings["go_back_menu"]);
+        C2D_TextFontParse(&g_staticText[YOU_WON], 		font, g_staticBuf, current_language->strings["you_won"]);
+		C2D_TextFontParse(&g_staticText[YOU_LOST], 		font, g_staticBuf, current_language->strings["you_lost"]);
+        C2D_TextFontParse(&g_staticText[ROUND], 		font, g_staticBuf, current_language->strings["round"]);
+        C2D_TextFontParse(&g_staticText[NEW_HIGHSCORE], font, g_staticBuf, current_language->strings["new_highscore"]);
+        C2D_TextFontParse(&g_staticText[NEW_BEST_TIME], font, g_staticBuf, current_language->strings["new_best_time"]);
 
 		// Pause
 
-		C2D_TextFontParse(&g_staticText[PAUSED], 		font, g_staticBuf, "Paused");
-		C2D_TextFontParse(&g_staticText[RESUME], 		font, g_staticBuf, "Resume");
-		C2D_TextFontParse(&g_staticText[EXIT], 			font, g_staticBuf, "Exit");
+		C2D_TextFontParse(&g_staticText[PAUSED], 		font, g_staticBuf, current_language->strings["paused"]);
+		C2D_TextFontParse(&g_staticText[RESUME], 		font, g_staticBuf, current_language->strings["resume"]);
+		C2D_TextFontParse(&g_staticText[EXIT], 			font, g_staticBuf, current_language->strings["exit"]);
 
         
 		//	Settings
 
-		C2D_TextFontParse(&g_staticText[YES], 			font, g_staticBuf, "< Yes >");
-        C2D_TextFontParse(&g_staticText[NO], 			font, g_staticBuf, "< No >");
+		C2D_TextFontParse(&g_staticText[YES], 			font, g_staticBuf, current_language->strings["yes"]);
+        C2D_TextFontParse(&g_staticText[NO], 			font, g_staticBuf, current_language->strings["no"]);
 
-        C2D_TextFontParse(&g_staticText[INVERT_X],		font, g_staticBuf, "Invert X axis:");
-        C2D_TextFontParse(&g_staticText[INVERT_Y], 		font, g_staticBuf, "Invert Y axis:");
+        C2D_TextFontParse(&g_staticText[INVERT_X],		font, g_staticBuf, current_language->strings["invert_x"]);
+        C2D_TextFontParse(&g_staticText[INVERT_Y], 		font, g_staticBuf, current_language->strings["invert_y"]);
 
 
 
@@ -72,6 +82,39 @@ namespace textScene{
 			C2D_TextOptimize(&txt);
 		}
 		// ----------------------------------------------------
+	}
+
+	void initLanguageFonts(u8 language_code){
+		json_error_t error;
+
+		std::string play;
+
+
+		for (auto& language_file : std::filesystem::directory_iterator("romfs:/languages/")){
+			json_t* object = json_load_file(language_file.path().c_str(), JSON_DECODE_ANY, &error);
+			
+			json_language language;
+			language.json_code = json_integer_value(json_object_get(object, "language_code"));
+			
+			json_t* strings_obj = json_object_get(object, "strings");
+
+			const char* key;
+			json_t* value;
+
+			json_object_foreach(strings_obj, key, value){
+				language.strings[std::string(key)] = json_string_value(value);
+			}
+
+			languages[language.json_code] = language;
+		}
+
+
+		// if language not supported
+		if (!languages.contains(language_code)){
+			current_language = &languages[CFG_LANGUAGE_EN];
+		} else{
+			current_language = &languages[language_code];
+		}
 	}
 
 
@@ -156,7 +199,8 @@ namespace textScene{
 
     void drawDeathMenuTop(std::string score, int seconds, int round){
 		const int size = 2;
-        C2D_DrawText(&g_staticText[YOU_LOST], C2D_WithColor, 100, 0, 0.5f, size, size, C2D_Color32f(255.0f, 0.0f, 0.0f, 255.0f));
+		const int align_x_center = TOP_WIDTH_CENTER - g_staticText[YOU_LOST].width;
+        C2D_DrawText(&g_staticText[YOU_LOST], C2D_WithColor, align_x_center, 0, 0.5f, size, size, C2D_Color32f(255.0f, 0.0f, 0.0f, 255.0f));
 
 		drawRoundSmall(round);
         drawScore(score);

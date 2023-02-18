@@ -1,0 +1,30 @@
+{
+    "language_code": 1,
+    "strings": {
+        "play": "Play",
+        "settings": "Settings",
+        "next_song": "Next Song",
+        "score": "Score:",
+        "title": "The Milky Way\n   Is Far Away",
+        "colon": ":",
+        "time_survived": "Time survived:",
+        "try_again": "Try again",
+        "go_back_menu": "Go back to menu",
+        "you_won": "You won!",
+        "you_lost": "You lost.",
+        "round": "Round:",
+        "new_highscore": "New Highscore!",
+        "new_best_time": "New Best Time!",
+
+
+        "paused": "Paused",
+        "resume": "Resume",
+        "exit": "Exit",
+
+        "yes": "< Yes >",
+        "no": "< No >",
+        
+        "invert_x": "Invert X axis:",
+        "invert_y": "Invert Y axis:"
+    }
+}

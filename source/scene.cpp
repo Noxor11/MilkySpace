@@ -60,7 +60,9 @@ namespace gameScene{
 		
 		cfguInit(); // Allow C2D_FontLoadSystem to work
 		gfxInitDefault();
-		textScene::initTextScene();
+		u8 system_language;
+		CFGU_GetSystemLanguage(&system_language);
+		textScene::initTextScene(5);
 		
 		if(!C3D_Init(C3D_DEFAULT_CMDBUF_SIZE) || !C2D_Init(C2D_DEFAULT_MAX_OBJECTS))
 			return -3;
