@@ -16,35 +16,61 @@ Settings initSettings(){
 
 namespace gameScene{
 
+	void initScene(){
+		int code = 0;
+		if((code = start()) < 0){
+			gfxInitDefault();
+			consoleInit(GFX_TOP, NULL);
+			printf("Scene not initialised.\nError code: %d\n\n", code);
+			const char* msg;
+			switch (code){
+				case -1: msg = "SDL_Audio could not be initialised.";	break;
+				case -2: msg = "Could not open audio mixer.";			break;
+				case -3: msg = "C2D could not be initialised.";			break;
+				case -4: msg = "Spritesheet could not be loaded";		break;
+			}
+			puts(msg);
+			puts("\nPress START to exit.");
 
-	int initScene() {
+			while(aptMainLoop()){
+				hidScanInput();
+
+				u32 kbDown = hidKeysDown();
+
+				if (kbDown & KEY_START)
+					break;
+			}
+
+			gameScene::stopAndClean(code);
+			exit(-1);
+		}
+	}
+
+	int start() {
 
 		romfsInit();
-
 		apply_dsp_firm();
 
-
-		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == 0){
-			printf("There was an error. %s", SDL_GetError());
-			sleep(3);
-			SDL_Quit();
-			gfxExit();
+		if(SDL_InitSubSystem(SDL_INIT_AUDIO) < 0){
+			return -1;
 		}
 
-
-		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048);
+		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048) == -1)
+			return -2;
 		
 		cfguInit(); // Allow C2D_FontLoadSystem to work
 		gfxInitDefault();
 		textScene::initTextScene();
-		C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
-		C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
-		C2D_Prepare();
 		
+		if(!C3D_Init(C3D_DEFAULT_CMDBUF_SIZE) || !C2D_Init(C2D_DEFAULT_MAX_OBJECTS))
+			return -3;
+
+		C2D_Prepare();		
 
 		// Load graphics
 		spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
-		if (!spriteSheet) svcBreak(USERBREAK_PANIC);
+		if (!spriteSheet) 
+			return -4;
 		
 
 		songs[0] = Mix_LoadMUS("romfs:/sound/music/background_loop.mp3");
@@ -61,7 +87,7 @@ namespace gameScene{
 			sleep(3);
 			SDL_Quit();
 			gfxExit();
-			return -1;
+			return -5;
 		}
 
 
@@ -77,15 +103,7 @@ namespace gameScene{
 		confirm_select 	= Mix_LoadWAV("romfs:/sound/confirm_selection.wav");
 		click		 	= Mix_LoadWAV("romfs:/sound/click.wav");
 
-
-
-
-
-
-
-
 		return 0;
-
 	}
 
 	void stopScene() {
@@ -106,15 +124,29 @@ namespace gameScene{
 		textScene::exitTextScene();
 		romfsExit();
 		
-
-
-
 		// Delete graphics
 		C2D_SpriteSheetFree(spriteSheet);
 
-		
 	}
 
+	void stopAndClean(int error){
+		
+		switch (error){
+			case -4:
+				C3D_Fini();
+				C2D_Fini();
+			case -3:
+				textScene::exitTextScene();
+				gfxExit();
+				cfguExit();
+			case -2: 
+				SDL_Quit();		
+		}
+		
+		romfsExit();
+		gfxExit();
+
+	}
 
 	void renderScene(C3D_RenderTarget* screen) {
 

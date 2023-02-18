@@ -25,12 +25,11 @@ struct Settings{
 Settings initSettings();
 
 namespace gameScene{
-    int initScene();
-
+    void initScene();
+    int start();
     void stopScene();
-
+	void stopAndClean(int error);
     void renderScene(C3D_RenderTarget* screen);
-
     void draw(Object* object);
 
 }
