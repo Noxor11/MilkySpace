@@ -397,7 +397,7 @@ void Game::checkInGamePlayerInput(){
 		game_state = PAUSE;
 	}
 	
-	if(kHeld & KEY_A){
+	if(kDown & KEY_A){
 		if(canShoot){
 			std::shared_ptr<Projectile> p = player.shoot();
 			p->setDisplayOnBottom(true);
