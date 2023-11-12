@@ -62,7 +62,7 @@ namespace gameScene{
 		gfxInitDefault();
 		u8 system_language;
 		CFGU_GetSystemLanguage(&system_language);
-		textScene::initTextScene(5);
+		textScene::initTextScene(system_language);
 		
 		if(!C3D_Init(C3D_DEFAULT_CMDBUF_SIZE) || !C2D_Init(C2D_DEFAULT_MAX_OBJECTS))
 			return -3;
