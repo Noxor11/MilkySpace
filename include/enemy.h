@@ -5,9 +5,7 @@
 
 #include <random>
 
-
-
-class Enemy : public Ship{
+class Enemy : public Ship {
     
 private:
 

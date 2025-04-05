@@ -16,27 +16,24 @@ void threadShoot(void* duration)
 {
 	while (runThreads)
 	{
-
-		if(!canShoot){
-			for(float i = *((u64*)duration) / 10; i < *((u64*)duration) && !canShoot; i += *((u64*)duration) / 10){
+		if (!canShoot) {
+			for (float i = *((u64*)duration) / 10; i < *((u64*)duration) && !canShoot; i += *((u64*)duration) / 10) {
 				svcSleepThread(*((u64*)duration) / 10);
 			}
 				canShoot = true;
 		}
-			
 		else
 			svcSleepThread(1e8);
 	    // Mix_PlayChannel(-1, (Mix_Chunk*) arg, 0);
-
 	}
 }
 
-void threadFadeIn(void* fade){
+void threadFadeIn(void* fade) {
 	
 	const int velocity = 10;
 
-	while(*(int*)fade > 0){
-		if(*(int*)fade - velocity < 0)
+	while (*(int*)fade > 0) {
+		if (*(int*)fade - velocity < 0)
 			*(int*)fade = 0;
 		else
 			*(int*)fade -= velocity;
@@ -45,11 +42,11 @@ void threadFadeIn(void* fade){
 	}
 }
 
-void threadFadeOut(void* fade){
+void threadFadeOut(void* fade) {
 
-	while(*(int*)fade < 255){
+	while (*(int*)fade < 255) {
 		
-		if(*(int*)fade - 5 > 255)
+		if (*(int*)fade - 5 > 255)
 			*(int*)fade = 255;
 		else
 			*(int*)fade += 5;
@@ -58,14 +55,14 @@ void threadFadeOut(void* fade){
 	}
 }
 
-void threadWait(void* round_ready){
+void threadWait(void* round_ready) {
 	svcSleepThread(2e9);
 	*(bool*)round_ready = true;
 }
 
-void threadLowHealth(void* has_low_health){
-	while(runThreads){
-		if(*(bool*)has_low_health){
+void threadLowHealth(void* has_low_health) {
+	while (runThreads) {
+		if (*(bool*)has_low_health) {
 			Mix_PlayChannel(-1, low_health, 0);
 		}
 		svcSleepThread(1e9);

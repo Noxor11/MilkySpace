@@ -20,11 +20,7 @@ extern volatile u64 sleepTime;
 extern volatile int fade;
 extern volatile bool health_low;
 
-
-
 extern Thread threads[NUMTHREADS];
-
-
 
 void threadShoot(void* player);
 

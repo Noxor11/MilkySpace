@@ -7,17 +7,16 @@
 
 #define DEFAULT_PLAYER_LIFE 10
 
-struct ammunition{
+struct ammunition {
     int bomb;
     int special;
 };
 
-
-enum gun{
+enum gun {
     BULLET_GUN, HEAVY_BULLET_GUN, BOMB_GUN
 };
 
-class Ship : public Object{
+class Ship : public Object {
 
 private:
 
@@ -25,7 +24,6 @@ private:
     ammunition ammo;
     gun current_gun;
     
-
 public:
 
 	Ship(C2D_SpriteSheet* spriteSheet, int index);
@@ -43,5 +41,4 @@ public:
 
     void resetState();
 
-    
 };

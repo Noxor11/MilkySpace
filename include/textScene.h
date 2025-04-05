@@ -9,7 +9,7 @@
 
 struct Settings;
 
-namespace textScene{
+namespace textScene {
 
     #define NO 			    0
     #define YES 		    1
@@ -33,13 +33,9 @@ namespace textScene{
     #define RESUME         	17
     #define EXIT         	18
 
-
     //  Settings
     #define INVERT_X 	    19
     #define INVERT_Y 	    20
-
-
-        
     
     void initTextScene(u8 language_code);   
     void initLanguageFonts(u8 language_code); 
@@ -60,15 +56,11 @@ namespace textScene{
     void drawDeathMenuTop(std::string score, int seconds, int round);
     void drawDeathMenuBottom();
 
-
     void drawTime(int seconds);
     void drawScore(std::string score);
     void drawRoundCenter(int round);
     void drawRoundSmall(int round);
 
-   
-
     void exitTextScene(void);
 
-    
 }
