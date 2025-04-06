@@ -1,33 +1,33 @@
 #include "ship.h"
 
 
-Ship::Ship(C2D_SpriteSheet* spriteSheet, int index) : Object::Object(spriteSheet, index){
+Ship::Ship(C2D_SpriteSheet* spriteSheet, int index) : Object::Object(spriteSheet, index) {
     life = DEFAULT_PLAYER_LIFE;
-    ammo = (ammunition){3, -1};
+    ammo = (ammunition) {3, -1};
     current_gun = BULLET_GUN;
 }
 
 
-Ship::Ship(C2D_SpriteSheet* spriteSheet, int index, float xPosition, float yPosition) : Object::Object(spriteSheet, index, xPosition, yPosition){
+Ship::Ship(C2D_SpriteSheet* spriteSheet, int index, float xPosition, float yPosition) : Object::Object(spriteSheet, index, xPosition, yPosition) {
     life = DEFAULT_PLAYER_LIFE;
-    ammo = (ammunition){3, -1};
+    ammo = (ammunition) {3, -1};
     current_gun = BULLET_GUN;
 }
 
-Ship::Ship(C2D_Image img) : Object::Object(img){
+Ship::Ship(C2D_Image img) : Object::Object(img) {
     life = DEFAULT_PLAYER_LIFE;
-    ammo = (ammunition){3, -1};
+    ammo = (ammunition) {3, -1};
     current_gun = BULLET_GUN;
 }
 
 
-std::shared_ptr<Projectile> Ship::shoot(){
+std::shared_ptr<Projectile> Ship::shoot() {
 
     int gun = BULLET;
     float damage = 1;
     float velocity = 5;
 
-    switch(current_gun){
+    switch (current_gun) {
 
         case BULLET_GUN:
         	Mix_PlayChannel(-1, laser, 0);
@@ -53,21 +53,22 @@ std::shared_ptr<Projectile> Ship::shoot(){
             velocity  = 20;
             break;
 
-
     }
 
     return std::make_shared<Projectile>(&spriteSheet, gun, damage, velocity);
 }
 
-gun Ship::getGun(){ return current_gun;}
+gun Ship::getGun() {
+	return current_gun;
+}
 
 
-void Ship::changeGun(){
+void Ship::changeGun() {
 
     current_gun = (gun)((current_gun+1) %3);
     
     
-    switch(current_gun){
+    switch (current_gun) {
         case BULLET_GUN:
             sleepTime = 3e8;
             break;
@@ -82,22 +83,23 @@ void Ship::changeGun(){
 
     }
 
-
 }
 
-float Ship::getLife(){ return life;}
+float Ship::getLife() {
+	return life;
+}
 
-void Ship::setLife(float ammount){
+void Ship::setLife(float ammount) {
     this->life = ammount;
 }
 
-void Ship::changeLifeBy(float ammount){
+void Ship::changeLifeBy(float ammount) {
     this->life += ammount;
 }
 
 
-void Ship::resetState(){
+void Ship::resetState() {
     this->life = DEFAULT_PLAYER_LIFE;
-    this->ammo = (ammunition){3, -1};
+    this->ammo = (ammunition) {3, -1};
     this->current_gun = BULLET_GUN;
 }

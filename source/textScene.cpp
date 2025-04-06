@@ -8,7 +8,7 @@ std::array<C2D_Text, 10> scoreNumberText;
 
 C2D_Font font;
 
-struct json_language{
+struct json_language {
 	u8 json_code;
 	std::unordered_map<std::string, const char*> strings; 
 };
@@ -16,16 +16,14 @@ struct json_language{
 std::unordered_map<u8, json_language> languages;
 json_language* current_language;
 
+namespace textScene {
 
-namespace textScene{
-
-	void initTextScene(u8 language_code){
+	void initTextScene(u8 language_code) {
 
 		initLanguageFonts(language_code);
 
 		g_staticBuf = C2D_TextBufNew(4096); // support up to 4096 glyphs in the buffer
 		font = C2D_FontLoad("romfs:/gfx/OmegleRegular-owopB.bcfnt");
-
 
 		//	------------------------------Set strings---------------------------------
 		C2D_TextFontParse(&g_staticText[PLAY], 			font, g_staticBuf, current_language->strings["play"]);
@@ -49,7 +47,6 @@ namespace textScene{
 		C2D_TextFontParse(&g_staticText[RESUME], 		font, g_staticBuf, current_language->strings["resume"]);
 		C2D_TextFontParse(&g_staticText[EXIT], 			font, g_staticBuf, current_language->strings["exit"]);
 
-        
 		//	Settings
 
 		C2D_TextFontParse(&g_staticText[YES], 			font, g_staticBuf, current_language->strings["yes"]);
@@ -58,39 +55,29 @@ namespace textScene{
         C2D_TextFontParse(&g_staticText[INVERT_X],		font, g_staticBuf, current_language->strings["invert_x"]);
         C2D_TextFontParse(&g_staticText[INVERT_Y], 		font, g_staticBuf, current_language->strings["invert_y"]);
 
-
-
-
-
-
-
-
 		//	Numbers for score display
-		for (int i = 0; i < (int) scoreNumberText.size(); i++){
+		for (int i = 0; i < (int) scoreNumberText.size(); i++) {
 			C2D_TextFontParse(&scoreNumberText[i], font, g_staticBuf, std::to_string(i).c_str());
 		}
 		//	---------------------------------------------------------------------------
 
-
 		// --------------Optimize text strings-------------
-		for(C2D_Text txt: g_staticText){
+		for (C2D_Text txt: g_staticText) {
 			C2D_TextOptimize(&txt);
 		}
 
-
-		for(C2D_Text txt: scoreNumberText){
+		for (C2D_Text txt: scoreNumberText) {
 			C2D_TextOptimize(&txt);
 		}
 		// ----------------------------------------------------
 	}
 
-	void initLanguageFonts(u8 language_code){
+	void initLanguageFonts(u8 language_code) {
 		json_error_t error;
 
 		std::string play;
 
-
-		for (auto& language_file : std::filesystem::directory_iterator("romfs:/languages/")){
+		for (auto& language_file : std::filesystem::directory_iterator("romfs:/languages/")) {
 			json_t* object = json_load_file(language_file.path().c_str(), JSON_DECODE_ANY, &error);
 			
 			json_language language;
@@ -101,24 +88,23 @@ namespace textScene{
 			const char* key;
 			json_t* value;
 
-			json_object_foreach(strings_obj, key, value){
+			json_object_foreach(strings_obj, key, value) {
 				language.strings[std::string(key)] = json_string_value(value);
 			}
 
 			languages[language.json_code] = language;
 		}
 
-
 		// if language not supported
-		if (!languages.contains(language_code)){
+		if (!languages.contains(language_code)) {
 			current_language = &languages[CFG_LANGUAGE_EN];
-		} else{
+		} else {
 			current_language = &languages[language_code];
 		}
 	}
 
 
-    void drawTopMenuText(){
+    void drawTopMenuText() {
 		const float size = 1.8;
 		// Draw white title below
         C2D_DrawText(&g_staticText[TITLE], C2D_WithColor, 62, TOP_HEIGHT_CENTER - 60, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
@@ -127,7 +113,7 @@ namespace textScene{
         C2D_DrawText(&g_staticText[TITLE], 0, 60, TOP_HEIGHT_CENTER - 60, 0.5f, size, size);
 
 	}
-	void drawBottomMenuText(){
+	void drawBottomMenuText() {
 		const int size = 1;
 		C2D_DrawText(&g_staticText[PLAY], C2D_WithColor, 100, BOTTOM_HEIGHT_CENTER - 30, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 		C2D_DrawText(&g_staticText[SETTINGS_TXT], C2D_WithColor, 100, BOTTOM_HEIGHT_CENTER, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
@@ -135,14 +121,14 @@ namespace textScene{
 
 	}
 
-	void drawPauseMenuTop(){
+	void drawPauseMenuTop() {
 		const float size = 1.6;
 
 		C2D_DrawText(&g_staticText[PAUSED], C2D_AtBaseline | C2D_WithColor, 130, TOP_HEIGHT_CENTER + 15, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 
 	}
 
-	void drawPauseMenuBottom(){
+	void drawPauseMenuBottom() {
 		const float size = 1;
 
 		C2D_DrawText(&g_staticText[RESUME], 	  C2D_AtBaseline | C2D_WithColor, 100, BOTTOM_HEIGHT_CENTER, 		0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
@@ -151,19 +137,18 @@ namespace textScene{
 
 	}
 
-	void drawSettingsMenu(Settings* settings){
+	void drawSettingsMenu(Settings* settings) {
         const int size 		= 1;
 		const int base_X 	= 50;
 		const int base_Y 	= BOTTOM_HEIGHT_CENTER - 60;
 
 		
 		//	Static Text
-		for(int i = INVERT_X, posY = base_Y; i < INVERT_X + 2; i++, posY += 30){
-			if(settings->selected == i){
+		for (int i = INVERT_X, posY = base_Y; i < INVERT_X + 2; i++, posY += 30) {
+			if (settings->selected == i) {
 				C2D_DrawText(&g_staticText[i], 					C2D_WithColor, base_X, posY, 0.5f, size, size, C2D_Color32f(255.0f, 0.0f, 0.0f, 255.0f));
 				C2D_DrawText(&g_staticText[settings->options[i]], 	C2D_WithColor, 200, posY, 0.5f, size, size, C2D_Color32f(255.0f, 0.0f, 0.0f, 255.0f));
-			}
-			else{
+			} else {
 				C2D_DrawText(&g_staticText[i], C2D_WithColor, base_X, posY, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 				C2D_DrawText(&g_staticText[settings->options[i]], 	C2D_WithColor, 200, posY, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 
@@ -174,7 +159,7 @@ namespace textScene{
 	}
 
 
-    void drawWonTop(std::string score, int seconds, int round){
+    void drawWonTop(std::string score, int seconds, int round) {
         const int size = 2;
         C2D_DrawText(&g_staticText[YOU_WON], C2D_WithColor, 100, 0, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 
@@ -183,21 +168,21 @@ namespace textScene{
         drawTime(seconds);
     }
 
-    void drawWonBottom(){
+    void drawWonBottom() {
 		drawDeathMenuBottom();
     }
 
-	void drawNewHighscore(){
+	void drawNewHighscore() {
 	    const float size = 0.7;
 		C2D_DrawText(&g_staticText[NEW_HIGHSCORE], C2D_WithColor | C2D_AtBaseline, 120, TOP_HEIGHT_CENTER + 90, 0.5f, size, size, C2D_Color32f(0.0f, 255.0f, 0.0f, 255.0f));
 	}
 
-	void drawNewBestTime(){
+	void drawNewBestTime() {
 	    const float size = 0.7;
 		C2D_DrawText(&g_staticText[NEW_BEST_TIME], C2D_WithColor | C2D_AtBaseline, 120, TOP_HEIGHT_CENTER + 110, 0.5f, size, size, C2D_Color32f(0.0f, 255.0f, 0.0f, 255.0f));
 	}
 
-    void drawDeathMenuTop(std::string score, int seconds, int round){
+    void drawDeathMenuTop(std::string score, int seconds, int round) {
 		const int size = 2;
 		const int align_x_center = TOP_WIDTH_CENTER - g_staticText[YOU_LOST].width;
         C2D_DrawText(&g_staticText[YOU_LOST], C2D_WithColor, align_x_center, 0, 0.5f, size, size, C2D_Color32f(255.0f, 0.0f, 0.0f, 255.0f));
@@ -207,7 +192,7 @@ namespace textScene{
         drawTime(seconds);
     }
 
-    void drawDeathMenuBottom(){
+    void drawDeathMenuBottom() {
 		const int size = 1;
 
 		C2D_DrawText(&g_staticText[TRY_AGAIN], C2D_WithColor, 60, BOTTOM_HEIGHT_CENTER - 30, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
@@ -217,13 +202,13 @@ namespace textScene{
 
 
 
-	void drawScore(std::string score){
+	void drawScore(std::string score) {
 		const int size = 1;
         C2D_DrawText(&g_staticText[SCORE], C2D_AtBaseline | C2D_WithColor, 50, TOP_HEIGHT_CENTER, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 
 
 		//	For every char in the score, convert to int and display it
-		for(int i = 0, xPos = 250; i < (int) score.length(); i++, xPos += 20){
+		for (int i = 0, xPos = 250; i < (int) score.length(); i++, xPos += 20) {
 			int p1 = score[i] - '0';
 				C2D_DrawText(&scoreNumberText[p1], C2D_AtBaseline | C2D_WithColor, xPos, TOP_HEIGHT_CENTER, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 		}
@@ -231,7 +216,7 @@ namespace textScene{
 
 	}
 
-	void drawTime(int seconds){
+	void drawTime(int seconds) {
 		const int size = 1;
         int time = seconds;
         int hour = 0;
@@ -250,21 +235,21 @@ namespace textScene{
 
 
 		std::string minutesStr = std::to_string(min);
-        if(minutesStr.length() == 1)
+        if (minutesStr.length() == 1)
             minutesStr = "0" + minutesStr;
 
 		std::string hoursStr = std::to_string(hour);
-        if(hoursStr.length() == 1)
+        if (hoursStr.length() == 1)
             hoursStr = "0" + hoursStr;
 
 		std::string secondsStr = std::to_string(sec);
-        if(secondsStr.length() == 1)
+        if (secondsStr.length() == 1)
             secondsStr = "0" + secondsStr;
 
         int realX = TOP_WIDTH_CENTER + 30;
 
         //	For every char in minutes, convert to int and display it
-		for(int i = 0, xPos = realX; i < (int) hoursStr.length(); i++, xPos += 15){
+		for (int i = 0, xPos = realX; i < (int) hoursStr.length(); i++, xPos += 15) {
 			int p1 = hoursStr[i] - '0';
 				C2D_DrawText(&scoreNumberText[p1], C2D_AtBaseline | C2D_WithColor, xPos, TOP_HEIGHT_CENTER - 40, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 		}
@@ -273,7 +258,7 @@ namespace textScene{
 
 
         //	For every char in minutes, convert to int and display it
-		for(int i = 0, xPos = realX + 40; i < (int) minutesStr.length(); i++, xPos += 15){
+		for (int i = 0, xPos = realX + 40; i < (int) minutesStr.length(); i++, xPos += 15) {
 			int p1 = minutesStr[i] - '0';
 				C2D_DrawText(&scoreNumberText[p1], C2D_AtBaseline | C2D_WithColor, xPos, TOP_HEIGHT_CENTER - 40, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 		}
@@ -282,7 +267,7 @@ namespace textScene{
 
 
 		//	For every char in minutes, convert to int and display it
-		for(int i = 0, xPos = realX + 80; i < (int) secondsStr.length(); i++, xPos += 15){
+		for (int i = 0, xPos = realX + 80; i < (int) secondsStr.length(); i++, xPos += 15) {
 			int p1 = secondsStr[i] - '0';
 				C2D_DrawText(&scoreNumberText[p1], C2D_AtBaseline | C2D_WithColor, xPos, TOP_HEIGHT_CENTER - 40, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 		}
@@ -290,7 +275,7 @@ namespace textScene{
 
 	}
 
-	void drawRoundCenter(int round){
+	void drawRoundCenter(int round) {
 		const float size = 1.4;
 		C2D_DrawText(&g_staticText[ROUND], C2D_AtBaseline | C2D_WithColor, 120, TOP_HEIGHT_CENTER, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 
@@ -298,13 +283,13 @@ namespace textScene{
 		std::string round_str = std::to_string(round);
 
         //	For every char in round, convert to int and display it
-		for(int i = 0, xPos = 240; i < (int) round_str.length(); i++, xPos += 15){
+		for (int i = 0, xPos = 240; i < (int) round_str.length(); i++, xPos += 15) {
 			int p1 = round_str[i] - '0';
 				C2D_DrawText(&scoreNumberText[p1], C2D_AtBaseline | C2D_WithColor, xPos, TOP_HEIGHT_CENTER, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 		}
 	}
 
-	void drawRoundSmall(int round){
+	void drawRoundSmall(int round) {
 		const int size = 1;
 		C2D_DrawText(&g_staticText[ROUND], C2D_AtBaseline | C2D_WithColor, 50, TOP_HEIGHT_CENTER + 50, 0.5f, size, size, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 
@@ -312,7 +297,7 @@ namespace textScene{
 		std::string round_str = std::to_string(round);
 
         //	For every char in round, convert to int and display it
-		for(int i = 0, xPos = 230; i < (int) round_str.length(); i++, xPos += 15){
+		for (int i = 0, xPos = 230; i < (int) round_str.length(); i++, xPos += 15) {
 			int p1 = round_str[i] - '0';
 				C2D_DrawText(&scoreNumberText[p1], C2D_AtBaseline | C2D_WithColor, xPos, TOP_HEIGHT_CENTER + 50, 0.5f, size + 0.2, size + 0.2, C2D_Color32f(255.0f,255.0f,255.0f,255.0f));
 		}

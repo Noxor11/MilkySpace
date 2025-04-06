@@ -14,10 +14,7 @@
 #include <unistd.h>
 
 
-
 #define MAX_SPRITES			768
-
-
 
 const int BACKGROUND_TOP 	=	0;
 const int BACKGROUND_BOT 	=	1;
@@ -36,7 +33,6 @@ const int ENEMY_BULLET		=	13;
 const int BOTTOM_BAR		=	14;
 const int SELECTOR			=	15;
 
-
 class Object {
 	
 	C2D_Sprite spr;
@@ -51,7 +47,6 @@ public:
 	bool hasSamePosAs(const Object* const object) const;
 	bool hasSamePosAs(const Object& object) const;
 
-
 	void setX(float newPosition);
 	void setY(float newPosition);
 	void setPos(float xPosition, float yPosition);
@@ -62,7 +57,6 @@ public:
 
 	bool followTrace(float x, float y);
 
-
 	void setImage(C2D_Image img);
 	C2D_Image getImage() const;
 	const C2D_Image* getImagePtr() const;
@@ -70,13 +64,10 @@ public:
 	C2D_Sprite getSprite() const;
 	const C2D_Sprite* getSpritePtr() const;
 
-
-
 	Object(const Object* const object);
 	Object(const C2D_SpriteSheet* const spriteSheet, int index);
 	Object(const C2D_SpriteSheet* const spriteSheet, int index, float xPosition, float yPosition);
 	Object(C2D_Image img);
 	Object() = delete;
-
 
 };

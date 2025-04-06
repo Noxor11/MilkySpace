@@ -88,22 +88,21 @@ void Object::moveBy(float xIncrement, float yIncrement) {
  * @return true if it got to the destination.
  * @return false if it hasn't reached the destination.
  */
-bool Object::followTrace(float x, float y){
+bool Object::followTrace(float x, float y) {
 	bool reached_x = false, reached_y = false;
 
 	float speed = 8;
 
-	if(px() > x){
+	if (px() > x) {
 
-		if(px() - speed < x){
+		if (px() - speed < x) {
 			moveXBy(x - px());
 		}
 		else
 			moveXBy(-speed);
-	}
-	else if(px() < x){
+	} else if (px() < x) {
 
-		if(px() + speed > x){
+		if (px() + speed > x) {
 			moveXBy(x - px());
 		}
 		else
@@ -113,17 +112,17 @@ bool Object::followTrace(float x, float y){
 	else
 		reached_x = true;
 
-	if(py() < y){
+	if (py() < y) {
 
-		if(py() - speed > y)
+		if (py() - speed > y)
 			moveYBy(y - py());
 		
 		else
 			moveYBy(-speed);
 	}
-	else if(py() > y){
+	else if (py() > y) {
 
-		if(py() - speed < y)
+		if (py() - speed < y)
 			moveYBy(py() - y);
 		else
 			moveYBy(speed);	
@@ -137,10 +136,10 @@ bool Object::followTrace(float x, float y){
 }
 
 Object::Object(const Object* object) : 
-	Object::Object(*object){}
+	Object::Object(*object) {}
 
 Object::Object(const C2D_SpriteSheet* const spriteSheet, int index) : 
-	Object::Object(spriteSheet, index, 0, 0){}
+	Object::Object(spriteSheet, index, 0, 0) {}
 
 Object::Object(const C2D_SpriteSheet* const spriteSheet, int index, float xPosition, float yPosition) {
 	C2D_SpriteFromSheet(&spr, *spriteSheet, index);

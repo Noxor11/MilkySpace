@@ -21,8 +21,6 @@ Game::Game()
 		bar(&spriteSheet, BOTTOM_BAR)
 		{
 
-	
-		
 	initOptions();
 
 	// Create screens
@@ -62,10 +60,9 @@ Game::Game()
 
 	// look it up now so we don't have to do it later
 	getHighscore();
-
 }
 
-void Game::initOptions(){
+void Game::initOptions() {
 	menu_options[0] = {SETUP_GAME, 	BOTTOM_HEIGHT_CENTER - 25};
 	menu_options[1] = {SETTINGS, 	BOTTOM_HEIGHT_CENTER +  5};
 	
@@ -80,7 +77,7 @@ void Game::initOptions(){
 
 void Game::setupGame(Ship& player, std::vector<Enemy>& enemies,
 				std::vector<std::shared_ptr<Projectile>>& projectiles,
-				std::vector<std::shared_ptr<Projectile>>& enemy_projectiles){
+				std::vector<std::shared_ptr<Projectile>>& enemy_projectiles) {
 	player.setLife(10);
 	player.setPos(BOTTOM_WIDTH_CENTER - player.width() / 2, BOTTOM_HEIGHT_CENTER - player.height() / 2);
 
@@ -94,18 +91,13 @@ void Game::setupGame(Ship& player, std::vector<Enemy>& enemies,
 	score_str = "";
 }
 
-
-
-
-
-void Game::getHighscore(){	
+void Game::getHighscore() {	
 	std::filesystem::create_directory("/3ds");
 	std::filesystem::create_directory(SCORE_FOLDER);
 
 	highscore_file.open(SCORE_FILE, std::fstream::in);
 	
-
-	if(!highscore_file.is_open()){
+	if (!highscore_file.is_open()) {
 		FILE* file = fopen(SCORE_FILE, "w");
 		fclose(file);
 		highscore_file.open(SCORE_FILE);
@@ -114,7 +106,6 @@ void Game::getHighscore(){
 		highscore_file << "0\n";
 	}
 		
-
 	highscore_file >> highscore;
 	highscore_file >> best_time;
 	
@@ -122,11 +113,11 @@ void Game::getHighscore(){
 
 }
 
-u64 Game::gameTime(){
+u64 Game::gameTime() {
 	return  svcGetSystemTick() / SYSCLOCK_ARM11 - last_game_time;
 }
 
-void Game::drawBackgroundTop(){
+void Game::drawBackgroundTop() {
 	gameScene::draw(&background_top);
 
 	gameScene::draw(&mv_bg_top1);
@@ -136,7 +127,7 @@ void Game::drawBackgroundTop(){
 	gameScene::draw(&mv_bg_top2_copy);
 }
 
-void Game::drawBackgroundBottom(){
+void Game::drawBackgroundBottom() {
 	gameScene::draw(&background_bot);
 
 	gameScene::draw(&mv_bg_bot1);
@@ -147,8 +138,8 @@ void Game::drawBackgroundBottom(){
 }
 
 
-void Game::startNewRound(std::vector<Enemy>& enemies){
-	for(int i = 1; i <= game_round; i++){
+void Game::startNewRound(std::vector<Enemy>& enemies) {
+	for (int i = 1; i <= game_round; i++) {
 		enemies.emplace_back(&spriteSheet, ENEMY_1, 40, 	i * 30);
 		enemies.emplace_back(&spriteSheet, ENEMY_2, 80, 	i * 30);
 		enemies.emplace_back(&spriteSheet, ENEMY_3, 120, 	i * 30);
@@ -159,11 +150,11 @@ void Game::startNewRound(std::vector<Enemy>& enemies){
 	}
 }
 
-void Game::moveBackground(Object* bg, Object* bg_copy, float velocity, int screen_width){
+void Game::moveBackground(Object* bg, Object* bg_copy, float velocity, int screen_width) {
 	bg->moveXBy(velocity);
 	bg_copy->moveXBy(velocity);
 
-	if(bg->px() < 0)
+	if (bg->px() < 0)
 		bg->setX(screen_width);
 
 	else if (bg_copy->px() < 0)
@@ -178,8 +169,8 @@ void Game::moveBackground(Object* bg, Object* bg_copy, float velocity, int scree
  * @param enemies the enemies
  * @return int the index holding the enemy hit, -1 if no enemy was hit.
  */
-int Game::checkBulletColission(Projectile* bullet, std::vector<Enemy>& enemies){
-	for(int i = 0; i < (int)enemies.size() ; i++){
+int Game::checkBulletColission(Projectile* bullet, std::vector<Enemy>& enemies) {
+	for (int i = 0; i < (int)enemies.size() ; i++) {
 		bool collision_Y = bullet->real_py() + bullet->height() > enemies[i].real_py() &&
 						   bullet->real_py() < enemies[i].real_py() + enemies[i].height();
 
@@ -187,7 +178,7 @@ int Game::checkBulletColission(Projectile* bullet, std::vector<Enemy>& enemies){
 						   bullet->px() < enemies[i].px() + enemies[i].width() / 2;
 
 
-		if(collision_Y && collision_X){
+		if (collision_Y && collision_X) {
 			enemies[i].changeLifeBy(-bullet->getDamage());
 			return i;
 		}
@@ -203,7 +194,7 @@ int Game::checkBulletColission(Projectile* bullet, std::vector<Enemy>& enemies){
  * @return true when hit
  * @return false when not hit
  */
-bool Game::checkBulletColission(Projectile* bullet, Ship& player){
+bool Game::checkBulletColission(Projectile* bullet, Ship& player) {
 	bool collision_Y = bullet->real_py() + bullet->height() > player.real_py() &&
 						bullet->real_py() < player.real_py() + player.height() / 2;
 
@@ -211,23 +202,22 @@ bool Game::checkBulletColission(Projectile* bullet, Ship& player){
 						bullet->px() < player.px() + player.width() / 3;
 
 
-	if(collision_Y && collision_X){
+	if (collision_Y && collision_X) {
 		Mix_PlayChannel(-1, player_hit, 0);
 		player.changeLifeBy(-bullet->getDamage());
 		return true;
 	}
 	
 	return false;
-
 }
 
-void Game::checkEnemyCollision(std::vector<Ship>& enemies){
-	for(int i = 0; i < (int)enemies.size() - 1 ; i++){
+void Game::checkEnemyCollision(std::vector<Ship>& enemies) {
+	for (int i = 0; i < (int)enemies.size() - 1 ; i++) {
 		int xspace = enemies[i].real_px() + enemies[i].width() - enemies[i+1].real_px();
 		int yspace = enemies[i].real_py() + enemies[i].height() - enemies[i+1].real_py();
 
-		if(xspace <= abs(60) && yspace <= abs(60)){
-			if(xspace > 0){
+		if (xspace <= abs(60) && yspace <= abs(60)) {
+			if (xspace > 0) {
 		   		enemies[i].moveXBy(-5);
 				enemies[i+1].moveXBy(5);
 			}
@@ -236,7 +226,7 @@ void Game::checkEnemyCollision(std::vector<Ship>& enemies){
 				enemies[i+1].moveXBy(-5);
 			}
 
-			if(yspace > 0){
+			if (yspace > 0) {
 		   		enemies[i].moveYBy(-5);
 				enemies[i+1].moveYBy(5);
 			}
@@ -244,20 +234,14 @@ void Game::checkEnemyCollision(std::vector<Ship>& enemies){
 				enemies[i].moveYBy(5);
 				enemies[i+1].moveYBy(-5);
 			}
-		
 		}
 	}
 }
 
-
-
-
-
-
-void Game::changeGameStateTo(GameState state){
+void Game::changeGameStateTo(GameState state) {
 	// 	MENU, SETTINGS, SETUP_GAME, SETUP_NEW_ROUND, GAME, PAUSE, DEAD, WON
 
-	switch (state){
+	switch (state) {
 	
 		case MENU:
 			gameOnPlay = false;
@@ -302,7 +286,7 @@ void Game::changeGameStateTo(GameState state){
 			selected_game_option = SETUP_GAME;
 
 						
-			if(highscore < score){
+			if (highscore < score) {
 				highscore_file.open(SCORE_FILE, std::fstream::in);
 
 				long int tmp;
@@ -321,7 +305,7 @@ void Game::changeGameStateTo(GameState state){
 				highscore = score;
 			}
 
-			if(best_time < timeOfDeath){
+			if (best_time < timeOfDeath) {
 				highscore_file.open(SCORE_FILE, std::fstream::in);
 				long int tmp_score;
 				highscore_file >> tmp_score;
@@ -346,59 +330,57 @@ void Game::changeGameStateTo(GameState state){
 		break;
 	}
 	
-	
 	game_state = state;
 }
 
-void Game::applySettings(){
+void Game::applySettings() {
 
-	if(settings.options[INVERT_X]){
+	if (settings.options[INVERT_X]) {
 		RIGHT	= KEY_LEFT;
 		LEFT	= KEY_RIGHT;
-	} else{
+	} else {
 		RIGHT	= KEY_RIGHT;
 		LEFT	= KEY_LEFT;
 	}
 	
-	if(settings.options[INVERT_Y]){
+	if (settings.options[INVERT_Y]) {
 		UP 		= KEY_DOWN;
 		DOWN 	= KEY_UP;
-	} else{
+	} else {
 		UP		= KEY_UP;
 		DOWN	= KEY_DOWN;
 	}
 
 }
 
-void Game::moveAllBackgroundsWithVelocity(float vFirst, float vSecond){
+void Game::moveAllBackgroundsWithVelocity(float vFirst, float vSecond) {
 	moveBackground(&mv_bg_top1, &mv_bg_top1_copy, vFirst, 	TOP_SCREEN_WIDTH);
 	moveBackground(&mv_bg_top2, &mv_bg_top2_copy, vSecond, 	TOP_SCREEN_WIDTH);
 
 	moveBackground(&mv_bg_bot1, &mv_bg_bot1_copy, vFirst, 	BOTTOM_SCREEN_WIDTH);
 	moveBackground(&mv_bg_bot2, &mv_bg_bot2_copy, vSecond, 	BOTTOM_SCREEN_WIDTH);
-
 }
 
-void Game::updateScoreOnHit(){
-	if(gameTime() < 60)
+void Game::updateScoreOnHit() {
+	if (gameTime() < 60)
 		score += 300;
-	else if(gameTime() < 180)
+	else if (gameTime() < 180)
 		score += 250;
-	else if(gameTime() < 60 * 5)
+	else if (gameTime() < 60 * 5)
 		score += 200;
 	else
 		score += 500;
 }
 
-void Game::checkInGamePlayerInput(){
-	if(kDown & KEY_START){
+void Game::checkInGamePlayerInput() {
+	if (kDown & KEY_START) {
 		Mix_PauseMusic();
 		selected_game_option = GAME;
 		game_state = PAUSE;
 	}
 	
-	if(kDown & KEY_A){
-		if(canShoot){
+	if (kDown & KEY_A) {
+		if (canShoot) {
 			std::shared_ptr<Projectile> p = player.shoot();
 			p->setDisplayOnBottom(true);
 			p->setPos(&player);
@@ -409,45 +391,43 @@ void Game::checkInGamePlayerInput(){
 	}
 
 	
-	if(kDown & KEY_B){
+	if (kDown & KEY_B) {
 		//player.shootBomb()
 	}
 
-	if(kDown & KEY_R){
+	if (kDown & KEY_R) {
 		// Mix_PlayChannel(-1, pong, 0);
 
 		player.changeGun();
 		canShoot = true;
 	}
 
-
-
-	if( kHeld & RIGHT){
+	if (kHeld & RIGHT) {
 		move = player.px() + playerVelocityX;
-		if(move < BOTTOM_SCREEN_WIDTH)
+		if (move < BOTTOM_SCREEN_WIDTH)
 			player.moveXBy(playerVelocityX);
 	}
 
-	if( kHeld & LEFT){
+	if (kHeld & LEFT) {
 		move = player.px() - playerVelocityX;
-		if(move > 0 + player.width())
+		if (move > 0 + player.width())
 			player.moveXBy(-playerVelocityX);
 	}
 
-	if( kHeld & UP){
+	if (kHeld & UP) {
 		move = player.py() - playerVelocityY;
-		if(move > 0 + player.height() )
+		if (move > 0 + player.height() )
 			player.moveYBy(playerVelocityY);
 	} 
 	
-	if( kHeld & DOWN){
+	if (kHeld & DOWN) {
 		move = player.py() + playerVelocityY;
-		if(move < BOTTOM_SCREEN_HEIGHT)
+		if (move < BOTTOM_SCREEN_HEIGHT)
 			player.moveYBy(-playerVelocityY);
 	}
 }
 
-void Game::drawHealthBar(){
+void Game::drawHealthBar() {
 
 	u32 color;
 	float life = player.getLife();
@@ -463,7 +443,7 @@ void Game::drawHealthBar(){
 		C2D_DrawRectangle(x, BOTTOM_SCREEN_HEIGHT - 10, 0, 15, 10, color, color, color, color);
 }
 
-void Game::handle_MENU(){
+void Game::handle_MENU() {
 	moveAllBackgroundsWithVelocity(-0.2, -0.04);	
 
 	gameScene::renderScene(top);
@@ -479,18 +459,19 @@ void Game::handle_MENU(){
 		gameScene::draw(selector.get());
 
 	
-	if( kDown & KEY_A){
+	if (kDown & KEY_A) {
 		Mix_PlayChannel(-1, confirm_select, 0);
 
-		if(menu_options[selected_option_index].state.option == NEXT_SONG){
+		if (menu_options[selected_option_index].state.option == NEXT_SONG) {
 			Mix_HookMusicFinished(playNextSong);
 			Mix_FadeOutMusic(100);
-		} else
+		}
+		else
 			changeGameStateTo(selected_game_option);					
 
 	}
 
-	if( kDown & KEY_UP){
+	if (kDown & KEY_UP) {
 		Mix_PlayChannel(-1, move_up_menu, 0);
 		
 		selected_option_index = (selected_option_index - 1) % menu_options.size();
@@ -498,7 +479,7 @@ void Game::handle_MENU(){
 		selector->setPos(60, menu_options[selected_option_index].yPos);
 	}
 
-	if( kDown & KEY_DOWN){
+	if (kDown & KEY_DOWN) {
 		Mix_PlayChannel(-1, move_down_menu, 0);
 		selected_option_index = (selected_option_index + 1) % menu_options.size();
 		selected_game_option = menu_options[selected_option_index].state.state;
@@ -506,18 +487,18 @@ void Game::handle_MENU(){
 	}
 }
 
-void Game::handle_GAME(){
+void Game::handle_GAME() {
 	gameOnPlay = true;
 
 
 	checkInGamePlayerInput();
 
 
-	for(auto& enemy : enemies){
+	for (auto& enemy : enemies) {
 		enemy.moveRandomly();
 
 		//	Adjust shoot frecuency by number of enemies
-		if(random() % (4 * enemies.size()) == 0){
+		if (random() % (4 * enemies.size()) == 0) {
 			std::shared_ptr<Projectile> p = enemy.shoot();
 			p->setPos(&enemy);
 			enemy_projectiles.push_back(p);
@@ -526,34 +507,34 @@ void Game::handle_GAME(){
 
 	moveAllBackgroundsWithVelocity(-0.2, -0.04);	
 
-	if(player.getLife() < 4)
+	if (player.getLife() < 4)
 		health_low = true;
 
 	gameScene::renderScene(top);
 		drawBackgroundTop();
 
-		for(Ship& enemy : enemies)
+		for (Ship& enemy : enemies)
 			gameScene::draw(&enemy);
 		
 		
 		// render and move player projectiles on the top screen
-		for (int i = 0; i < (int)projectiles.size(); i++){
+		for (int i = 0; i < (int)projectiles.size(); i++) {
 
-			if(projectiles[i]->shouldDisplayOnTop()){
-				if(projectiles[i]->py() < LOWEST_SCREEN_POSITION){
+			if (projectiles[i]->shouldDisplayOnTop()) {
+				if (projectiles[i]->py() < LOWEST_SCREEN_POSITION) {
 					projectiles[i]->setDisplayOnTop(false);
 					projectiles.erase(projectiles.begin() + i);
-				} else{
+				} else {
 					projectiles[i]->moveYBy(projectiles[i]->getVelocity());
 					int ship_collided = checkBulletColission(projectiles[i].get(), enemies);
-					if(ship_collided != -1){
+					if (ship_collided != -1) {
 						updateScoreOnHit();
 
 						Mix_PlayChannel(-1, hit, 0);
 						projectiles.erase(projectiles.begin() + i);
 						printf("Colided: %d\tLife: %.1f\n", ship_collided, enemies[ship_collided].getLife());
 						
-						if(enemies[ship_collided].getLife() <= 0){
+						if (enemies[ship_collided].getLife() <= 0) {
 							enemies.erase(enemies.begin() + ship_collided);
 							score += 1000;
 						}
@@ -565,13 +546,13 @@ void Game::handle_GAME(){
 		}
 
 		// render and move enemy projectiles on the top screen
-		for (int i = 0; i < (int)enemy_projectiles.size(); i++){
+		for (int i = 0; i < (int)enemy_projectiles.size(); i++) {
 
-			if(enemy_projectiles[i]->shouldDisplayOnTop()){
+			if (enemy_projectiles[i]->shouldDisplayOnTop()) {
 				enemy_projectiles[i]->moveYBy(enemy_projectiles[i]->getVelocity());
 				printf("%f", enemy_projectiles[i]->getVelocity());
 				gameScene::draw(enemy_projectiles[i].get());
-				if(enemy_projectiles[i]->py() > TOP_SCREEN_HEIGHT){
+				if (enemy_projectiles[i]->py() > TOP_SCREEN_HEIGHT) {
 					enemy_projectiles[i]->setY(-5);
 					enemy_projectiles[i]->moveXBy(-40);
 					enemy_projectiles[i]->setDisplayOnBottom(true);
@@ -586,12 +567,12 @@ void Game::handle_GAME(){
 
 
 		// render and move player projectiles on the bottom screen
-		for (int i = 0; i < (int)projectiles.size(); i++){
+		for (int i = 0; i < (int)projectiles.size(); i++) {
 			
-			if(projectiles[i]->shouldDisplayOnBottom()){
+			if (projectiles[i]->shouldDisplayOnBottom()) {
 				projectiles[i]->moveYBy(projectiles[i]->getVelocity());
 				gameScene::draw(projectiles[i].get());
-				if(projectiles[i]->py() < LOWEST_SCREEN_POSITION){
+				if (projectiles[i]->py() < LOWEST_SCREEN_POSITION) {
 					projectiles[i]->setY(240);
 					projectiles[i]->moveXBy(40);
 					projectiles[i]->setDisplayOnBottom(false);
@@ -601,19 +582,19 @@ void Game::handle_GAME(){
 		}
 
 		// render and move enemy projectiles on the bottom screen
-		for (int i = 0; i < (int)enemy_projectiles.size(); i++){
+		for (int i = 0; i < (int)enemy_projectiles.size(); i++) {
 
-			if(enemy_projectiles[i]->shouldDisplayOnBottom()){
-				if(enemy_projectiles[i]->py() > BOTTOM_SCREEN_HEIGHT){
+			if (enemy_projectiles[i]->shouldDisplayOnBottom()) {
+				if (enemy_projectiles[i]->py() > BOTTOM_SCREEN_HEIGHT) {
 					enemy_projectiles[i]->setDisplayOnBottom(false);
-				} else{
+				} else {
 
 					enemy_projectiles[i]->moveYBy(enemy_projectiles[i]->getVelocity());
 					bool player_hit = checkBulletColission(enemy_projectiles[i].get(), player);
-					if(player_hit){
+					if (player_hit) {
 						enemy_projectiles.erase(enemy_projectiles.begin() + i);							
 						
-						if(player.getLife() <= 0){
+						if (player.getLife() <= 0) {
 							Mix_PlayChannel(-1, game_over, 0);
 							sleep(1);
 							changeGameStateTo(DEAD);
@@ -625,7 +606,7 @@ void Game::handle_GAME(){
 			}
 		}
 
-		if(enemies.size() == 0)	
+		if (enemies.size() == 0)	
 			changeGameStateTo(SETUP_NEW_ROUND);
 
 
@@ -635,21 +616,21 @@ void Game::handle_GAME(){
 		drawHealthBar();
 }
 
-void Game::handle_PAUSE(){
+void Game::handle_PAUSE() {
 	gameScene::renderScene(top);
 		drawBackgroundTop();
 
-		for(Ship& enemy : enemies)
+		for (Ship& enemy : enemies)
 			gameScene::draw(&enemy);
 
 
 		for (int i = 0; i < (int)projectiles.size(); i++)
-			if(projectiles[i]->shouldDisplayOnTop())
+			if (projectiles[i]->shouldDisplayOnTop())
 				gameScene::draw(projectiles[i].get());
 		
 
 		for (int i = 0; i < (int)enemy_projectiles.size(); i++)
-			if(enemy_projectiles[i]->shouldDisplayOnTop())
+			if (enemy_projectiles[i]->shouldDisplayOnTop())
 				gameScene::draw(enemy_projectiles[i].get());	
 		
 		
@@ -662,12 +643,12 @@ void Game::handle_PAUSE(){
 
 
 		for (int i = 0; i < (int)projectiles.size(); i++)
-			if(projectiles[i]->shouldDisplayOnBottom())
+			if (projectiles[i]->shouldDisplayOnBottom())
 				gameScene::draw(projectiles[i].get());
 		
 
 		for (int i = 0; i < (int)enemy_projectiles.size(); i++)
-			if(enemy_projectiles[i]->shouldDisplayOnBottom())
+			if (enemy_projectiles[i]->shouldDisplayOnBottom())
 				gameScene::draw(enemy_projectiles[i].get());	
 		
 		
@@ -680,23 +661,23 @@ void Game::handle_PAUSE(){
 
 
 
-	if(kDown & KEY_SELECT){
+	if (kDown & KEY_SELECT) {
 		Mix_ResumeMusic();
 		changeGameStateTo(GAME);
 	}
 
 
 
-	if( kDown & KEY_A){
+	if (kDown & KEY_A) {
 		Mix_PlayChannel(-1, confirm_select, 0);
 		
-		if(selected_game_option == GAME || selected_game_option == MENU)
+		if (selected_game_option == GAME || selected_game_option == MENU)
 			Mix_ResumeMusic();
 
 		changeGameStateTo(selected_game_option);
 	} 
 
-	if(kDown & KEY_UP){
+	if (kDown & KEY_UP) {
 		Mix_PlayChannel(-1, move_up_menu, 0);
 
 		selected_option_index = (selected_option_index - 1) % pause_options.size();
@@ -705,7 +686,7 @@ void Game::handle_PAUSE(){
 
 	}
 
-	if(kDown & KEY_DOWN){
+	if (kDown & KEY_DOWN) {
 		Mix_PlayChannel(-1, move_down_menu, 0);
 
 		selected_option_index = (selected_option_index + 1) % pause_options.size();
@@ -716,21 +697,21 @@ void Game::handle_PAUSE(){
 
 }
 
-void Game::handle_DEAD(){
-	if(kDown & KEY_UP){
+void Game::handle_DEAD() {
+	if (kDown & KEY_UP) {
 		Mix_PlayChannel(-1, move_up_menu, 0);
 		selected_game_option = SETUP_GAME;
 		selector->setPos(15, BOTTOM_HEIGHT_CENTER - 25);
 
 	}
 
-	if(kDown & KEY_DOWN){
+	if (kDown & KEY_DOWN) {
 		Mix_PlayChannel(-1, move_down_menu, 0);
 		selected_game_option = MENU;
 		selector->setPos(15, BOTTOM_HEIGHT_CENTER + 5);
 	}
 
-	if(kDown & KEY_A){
+	if (kDown & KEY_A) {
 		Mix_PlayChannel(-1, confirm_select, 0);
 		selector->setPos(60, BOTTOM_HEIGHT_CENTER - 25);
 		changeGameStateTo(selected_game_option); 
@@ -740,10 +721,10 @@ void Game::handle_DEAD(){
 	gameScene::renderScene(top);
 		textScene::drawDeathMenuTop(score_str, timeOfDeath, game_round);
 		
-		if(is_new_highscore)
+		if (is_new_highscore)
 			textScene::drawNewHighscore();
 
-		if(is_new_best_time)
+		if (is_new_best_time)
 			textScene::drawNewBestTime();			
 
 	gameScene::renderScene(bottom);
@@ -751,34 +732,34 @@ void Game::handle_DEAD(){
 		gameScene::draw(selector.get());
 }
 
-void Game::handle_SETTINGS(){
-	if( kDown & KEY_UP){
+void Game::handle_SETTINGS() {
+	if ( kDown & KEY_UP) {
 		Mix_PlayChannel(-1, move_up_menu, 0);
 		settings.selected = INVERT_X;
 	}
 
-	if( kDown & KEY_DOWN){
+	if ( kDown & KEY_DOWN) {
 		Mix_PlayChannel(-1, move_down_menu, 0);
 		settings.selected = INVERT_Y;
 	}
 
-	if( kDown & KEY_LEFT){
+	if ( kDown & KEY_LEFT) {
 		Mix_PlayChannel(-1, click, 0);
 		settings.options[settings.selected] = NO;
 	}
 
-	if( kDown & KEY_RIGHT){
+	if ( kDown & KEY_RIGHT) {
 		Mix_PlayChannel(-1, click, 0);
 		settings.options[settings.selected] = YES;
 	}
 
 
-	if( kDown & KEY_B){
+	if ( kDown & KEY_B) {
 		Mix_PlayChannel(-1, confirm_select, 0);
 
 		applySettings();
 
-		if(gameOnPlay)
+		if (gameOnPlay)
 			changeGameStateTo(PAUSE);
 		else
 			changeGameStateTo(MENU);
@@ -797,23 +778,23 @@ void Game::handle_SETTINGS(){
 		textScene::drawSettingsMenu(&settings);
 }
 
-void Game::handle_SETUP_GAME(){
+void Game::handle_SETUP_GAME() {
 	setupGame(player, enemies, projectiles, enemy_projectiles);
 	
 	threads[2] = threadCreate(threadWait, (void*)&round_ready, 	STACKSIZE, prio-1, -2, false);
 	changeGameStateTo(SETUP_NEW_ROUND);
 }
 
-void Game::handle_SETUP_NEW_ROUND(){
+void Game::handle_SETUP_NEW_ROUND() {
 
 	moveAllBackgroundsWithVelocity(-5, -1);	
 
-	if(!round_ready){
+	if (!round_ready) {
 		gameScene::renderScene(top);
 			drawBackgroundTop();
 
 
-			for(Ship& enemy : enemies){
+			for (Ship& enemy : enemies) {
 				gameScene::draw(&enemy);
 			}
 
@@ -825,8 +806,7 @@ void Game::handle_SETUP_NEW_ROUND(){
 			
 			gameScene::draw(&player);
 
-	}
-	else{
+	} else {
 
 		player.setLife(10);
 		enemies.clear();
@@ -839,8 +819,8 @@ void Game::handle_SETUP_NEW_ROUND(){
 	}
 }
 
-void Game::start(){
-	while (aptMainLoop()){
+void Game::start() {
+	while (aptMainLoop()) {
 		hidScanInput();
 
 		kDown = hidKeysDown();
@@ -848,7 +828,7 @@ void Game::start(){
 
 		C2D_Fade(C2D_Color32(0,0,0,fade));
 
-		switch(game_state){
+		switch (game_state) {
 			case MENU:  			handle_MENU(); 				break;
 			case GAME:  			handle_GAME(); 				break;
 			case PAUSE: 			handle_PAUSE(); 			break;

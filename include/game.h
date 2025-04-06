@@ -6,28 +6,26 @@
 #define SCORE_FOLDER 	"/3ds/MilkySpace"
 #define SCORE_FILE		SCORE_FOLDER "/score"
 
-
-
-class Game{
+class Game {
 
     bool is_new_highscore = false;
     bool is_new_best_time = false;
 
-    enum GameState{
+    enum GameState {
         MENU, SETTINGS, SETUP_GAME, SETUP_NEW_ROUND, GAME, PAUSE, DEAD
     };
 
-    enum GameOption{
+    enum GameOption {
 	    NEXT_SONG = 10
     };
 
-    union selecting_item{
+    union selecting_item {
         GameState state;
         GameOption option;
 
     };
 
-    struct selection{
+    struct selection {
         selecting_item state;
         int yPos;
     };

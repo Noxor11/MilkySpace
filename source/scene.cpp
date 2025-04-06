@@ -4,7 +4,7 @@
 C2D_SpriteSheet spriteSheet;
 
 
-Settings initSettings(){
+Settings initSettings() {
 	Settings set;
 	set.selected = INVERT_X;
 	
@@ -14,16 +14,16 @@ Settings initSettings(){
 	return set;
 }
 
-namespace gameScene{
+namespace gameScene {
 
-	void initScene(){
+	void initScene() {
 		int code = 0;
-		if((code = start()) < 0){
+		if ((code = start()) < 0) {
 			gfxInitDefault();
 			consoleInit(GFX_TOP, NULL);
 			printf("Scene not initialised.\nError code: %d\n\n", code);
 			const char* msg;
-			switch (code){
+			switch (code) {
 				case -1: msg = "SDL_Audio could not be initialised.";	break;
 				case -2: msg = "Could not open audio mixer.";			break;
 				case -3: msg = "C2D could not be initialised.";			break;
@@ -32,7 +32,7 @@ namespace gameScene{
 			puts(msg);
 			puts("\nPress START to exit.");
 
-			while(aptMainLoop()){
+			while(aptMainLoop()) {
 				hidScanInput();
 
 				u32 kbDown = hidKeysDown();
@@ -51,11 +51,11 @@ namespace gameScene{
 		romfsInit();
 		apply_dsp_firm();
 
-		if(SDL_InitSubSystem(SDL_INIT_AUDIO) < 0){
+		if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
 			return -1;
 		}
 
-		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048) == -1)
+		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048) == -1)
 			return -2;
 		
 		cfguInit(); // Allow C2D_FontLoadSystem to work
@@ -64,7 +64,7 @@ namespace gameScene{
 		CFGU_GetSystemLanguage(&system_language);
 		textScene::initTextScene(system_language);
 		
-		if(!C3D_Init(C3D_DEFAULT_CMDBUF_SIZE) || !C2D_Init(C2D_DEFAULT_MAX_OBJECTS))
+		if (!C3D_Init(C3D_DEFAULT_CMDBUF_SIZE) || !C2D_Init(C2D_DEFAULT_MAX_OBJECTS))
 			return -3;
 
 		C2D_Prepare();		
@@ -84,7 +84,7 @@ namespace gameScene{
 		songs[6] = Mix_LoadMUS("romfs:/sound/music/background_7.mp3");
 
 		
-		if(!songs[0]){
+		if (!songs[0]) {
 			puts("Music could not be loaded.");
 			sleep(3);
 			SDL_Quit();
@@ -131,9 +131,9 @@ namespace gameScene{
 
 	}
 
-	void stopAndClean(int error){
+	void stopAndClean(int error) {
 		
-		switch (error){
+		switch (error) {
 			case -4:
 				C3D_Fini();
 				C2D_Fini();
@@ -152,7 +152,6 @@ namespace gameScene{
 
 	void renderScene(C3D_RenderTarget* screen) {
 
-
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 		C2D_TargetClear(screen, C2D_Color32(0, 0, 0, 0xFF));
 		C2D_SceneBegin(screen);
@@ -164,4 +163,3 @@ namespace gameScene{
 	}
 
 }
-

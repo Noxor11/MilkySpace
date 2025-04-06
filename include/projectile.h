@@ -2,7 +2,7 @@
 #include "gameObject.h"
 
 
-class Projectile : public Object{
+class Projectile : public Object {
 
 private:
     bool displayOnBottom;

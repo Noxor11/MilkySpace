@@ -16,7 +16,7 @@
 extern C2D_SpriteSheet spriteSheet;
 
 
-struct Settings{
+struct Settings {
     int selected;
 
     std::unordered_map<int, int> options;
@@ -24,12 +24,11 @@ struct Settings{
 
 Settings initSettings();
 
-namespace gameScene{
+namespace gameScene {
     void initScene();
     int start();
     void stopScene();
 	void stopAndClean(int error);
     void renderScene(C3D_RenderTarget* screen);
     void draw(Object* object);
-
 }
