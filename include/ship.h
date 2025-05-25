@@ -1,8 +1,8 @@
 #pragma once
-#include "gameObject.h"
+#include "gameSpecification.h"
 #include "projectile.h"
-#include "scene.h"
-#include "gameThreads.h"
+#include "gameObject.h"
+
 #include <memory>
 
 #define DEFAULT_PLAYER_LIFE 10
@@ -26,9 +26,9 @@ private:
     
 public:
 
-	Ship(C2D_SpriteSheet* spriteSheet, int index);
-	Ship(C2D_SpriteSheet* spriteSheet, int index, float xPosition, float yPosition);
-	Ship(C2D_Image img);
+	Ship(SpriteSheet* spriteSheet, int index);
+	Ship(SpriteSheet* spriteSheet, int index, float xPosition, float yPosition);
+	Ship(Image img);
 
     virtual std::shared_ptr<Projectile> shoot();
 

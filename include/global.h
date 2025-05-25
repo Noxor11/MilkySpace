@@ -14,6 +14,6 @@
 
 #define LOWEST_SCREEN_POSITION  0
 
-#define GREEN 	C2D_Color32(0, 255, 0, 255)
-#define YELLOW 	C2D_Color32(255, 255, 0, 255)
-#define RED 	C2D_Color32(255, 0, 0, 255)
+#define GREEN 	Color32(0, 255, 0, 255)
+#define YELLOW 	Color32(255, 255, 0, 255)
+#define RED 	Color32(255, 0, 0, 255)

@@ -1,19 +1,20 @@
 #include "projectile.h"
+#include "gameSpecification.h"
 
 
-Projectile::Projectile(C2D_SpriteSheet* spriteSheet, int index) : Object::Object(spriteSheet, index) {
+Projectile::Projectile(SpriteSheet* spriteSheet, int index) : Object::Object(spriteSheet, index) {
     displayOnBottom = false,
     displayOnTop = false;     
     damage = 1;
 }
 
-Projectile::Projectile(C2D_SpriteSheet* spriteSheet, int index, float damage) : Object::Object(spriteSheet, index) {
+Projectile::Projectile(SpriteSheet* spriteSheet, int index, float damage) : Object::Object(spriteSheet, index) {
     displayOnBottom = false,
     displayOnTop = false;     
     this->damage = damage;
 }
 
-Projectile::Projectile(C2D_SpriteSheet* spriteSheet, int index, float damage, float velocity) : Object::Object(spriteSheet, index) {
+Projectile::Projectile(SpriteSheet* spriteSheet, int index, float damage, float velocity) : Object::Object(spriteSheet, index) {
     this->damage = damage;
     this->velocity = velocity;
     displayOnBottom = false,
@@ -21,7 +22,7 @@ Projectile::Projectile(C2D_SpriteSheet* spriteSheet, int index, float damage, fl
     damage = 1;
 }
 
-Projectile::Projectile(C2D_Image img) : Object::Object(img) {
+Projectile::Projectile(Image img) : Object::Object(img) {
     displayOnBottom = false,
     displayOnTop = false;     
     damage = 1;

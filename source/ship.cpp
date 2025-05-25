@@ -1,20 +1,23 @@
 #include "ship.h"
+#include "gameSpecification.h"
+#include "sound.h"
+#include "scene.h"
+#include "gameThreads.h"
 
-
-Ship::Ship(C2D_SpriteSheet* spriteSheet, int index) : Object::Object(spriteSheet, index) {
+Ship::Ship(SpriteSheet* spriteSheet, int index) : Object::Object(spriteSheet, index) {
     life = DEFAULT_PLAYER_LIFE;
     ammo = (ammunition) {3, -1};
     current_gun = BULLET_GUN;
 }
 
 
-Ship::Ship(C2D_SpriteSheet* spriteSheet, int index, float xPosition, float yPosition) : Object::Object(spriteSheet, index, xPosition, yPosition) {
+Ship::Ship(SpriteSheet* spriteSheet, int index, float xPosition, float yPosition) : Object::Object(spriteSheet, index, xPosition, yPosition) {
     life = DEFAULT_PLAYER_LIFE;
     ammo = (ammunition) {3, -1};
     current_gun = BULLET_GUN;
 }
 
-Ship::Ship(C2D_Image img) : Object::Object(img) {
+Ship::Ship(Image img) : Object::Object(img) {
     life = DEFAULT_PLAYER_LIFE;
     ammo = (ammunition) {3, -1};
     current_gun = BULLET_GUN;
@@ -30,7 +33,7 @@ std::shared_ptr<Projectile> Ship::shoot() {
     switch (current_gun) {
 
         case BULLET_GUN:
-        	Mix_PlayChannel(-1, laser, 0);
+        	PlayChunkOnChannel(-1, laser, 0);
 
             gun = BULLET;
             damage = 1;
@@ -38,7 +41,7 @@ std::shared_ptr<Projectile> Ship::shoot() {
             break;
 
         case HEAVY_BULLET_GUN:
-            Mix_PlayChannel(-1, heavy_bullet, 0);
+            PlayChunkOnChannel(-1, heavy_bullet, 0);
 
             gun = HEAVY_BULLET;
             damage = 3;
@@ -46,7 +49,7 @@ std::shared_ptr<Projectile> Ship::shoot() {
             break;
         
         case BOMB_GUN:
-            Mix_PlayChannel(-1, heavy_bullet, 0);
+            PlayChunkOnChannel(-1, heavy_bullet, 0);
 
             gun = BOMB;
             damage = 5;

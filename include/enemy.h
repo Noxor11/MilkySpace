@@ -1,9 +1,8 @@
 #pragma once
 
+#include "gameSpecification.h"
 #include "ship.h"
-#include "global.h"
 
-#include <random>
 
 class Enemy : public Ship {
     
@@ -18,9 +17,9 @@ private:
 
 public:
 
-    Enemy(C2D_SpriteSheet* spriteSheet, int index);
-	Enemy(C2D_SpriteSheet* spriteSheet, int index, float xPosition, float yPosition);
-	Enemy(C2D_Image img);
+    Enemy(SpriteSheet* spriteSheet, int index);
+	Enemy(SpriteSheet* spriteSheet, int index, float xPosition, float yPosition);
+	Enemy(Image img);
 
     std::shared_ptr<Projectile> shoot() override;
 

@@ -1,0 +1,38 @@
+# Makefile to compile C++ source files to a WebAssembly library using Emscripten
+
+# Directories
+SRC_DIR := source
+INC_DIR := include
+BUILD_DIR := build
+OUT_FILE := $(BUILD_DIR)/MilkySpace.wasm
+
+# Tools
+EMCC := emcc
+
+# Compiler flags
+CXXFLAGS := -O3 -std=c++17 -D__WASM__ -fPIC -I$(INC_DIR)
+
+# Sources and objects
+SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
+
+# Default target
+all: $(OUT_FILE)
+
+# Build output wasm
+$(OUT_FILE): $(OBJECTS)
+	$(EMCC) $(CXXFLAGS) -s WASM=1 -s SIDE_MODULE=1 -o $@ $^
+
+# Compile source to object files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(EMCC) $(CXXFLAGS) -c $< -o $@
+
+# Create build directory if not exists
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Clean build
+clean:
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean

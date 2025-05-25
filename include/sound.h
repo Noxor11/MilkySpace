@@ -1,9 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_audio.h>
-#include <SDL_mixer.h>
-#include <filesystem>
+#include "gameSpecification.h"
 
 #define NUMBER_OF_SONGS 7
 
@@ -23,7 +20,5 @@ extern Mix_Chunk *click;
 extern Mix_Music* songs[NUMBER_OF_SONGS];
 
 extern int song_playing;
-
-void apply_dsp_firm();
 
 void playNextSong();

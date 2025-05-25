@@ -13,10 +13,10 @@ private:
 
 public:
 
-	Projectile(C2D_SpriteSheet* spriteSheet, int index);
-    Projectile(C2D_SpriteSheet* spriteSheet, int index, float damage);
-	Projectile(C2D_SpriteSheet* spriteSheet, int index, float damage, float velocity);
-	Projectile(C2D_Image img);
+	Projectile(SpriteSheet* spriteSheet, int index);
+    Projectile(SpriteSheet* spriteSheet, int index, float damage);
+	Projectile(SpriteSheet* spriteSheet, int index, float damage, float velocity);
+	Projectile(Image img);
 
     bool shouldDisplayOnBottom();
     bool shouldDisplayOnTop();

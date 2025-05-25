@@ -1,5 +1,11 @@
 #include "game.h"
+#include "gameSpecification.h"
+#include "sound.h"
+#include "global.h"
+#include "gameThreads.h"
 
+
+#include <filesystem>
 
 
 Game::Game()            
@@ -24,12 +30,12 @@ Game::Game()
 	initOptions();
 
 	// Create screens
-	top     = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-	bottom 	= C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
+	top     = CreateScreenTarget(Screen::GFX_TOP, ScreenSide::GFX_LEFT);
+	bottom 	= CreateScreenTarget(Screen::GFX_BOTTOM, ScreenSide::GFX_LEFT);
 	
 
-	Mix_PlayMusic(songs[2], 0);
-	Mix_HookMusicFinished(playNextSong);
+	PlayMusic(songs[2], 0);
+	HookMusicFinished(playNextSong);
 
 
 	mv_bg_top1_copy.setX(TOP_SCREEN_WIDTH);
@@ -50,13 +56,13 @@ Game::Game()
 	move = 0;
 	health_low = false;
 
-	svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
+	GetThreadPriority(&prio, getCurrentThreadHandle());
 
 	// The priority of these child threads must be higher (aka the value is lower) than that
 	// of the main thread, otherwise there is thread starvation due to stdio being locked.
-	threads[0] = threadCreate(threadShoot, 		(void*)(&sleepTime), STACKSIZE, prio-1, -2, false);
-	threads[1] = threadCreate(threadFadeIn, 	(void*)(&fade), 	STACKSIZE, prio-1, -2, false);
-	threads[3] = threadCreate(threadLowHealth, 	(void*)(&health_low), 	STACKSIZE, prio-1, -2, false);
+	threads[0] = CreateThread(threadShoot, 		(void*)(&sleepTime), STACKSIZE, prio-1, -2, false);
+	threads[1] = CreateThread(threadFadeIn, 	(void*)(&fade), 	STACKSIZE, prio-1, -2, false);
+	threads[3] = CreateThread(threadLowHealth, 	(void*)(&health_low), 	STACKSIZE, prio-1, -2, false);
 
 	// look it up now so we don't have to do it later
 	getHighscore();
@@ -86,7 +92,7 @@ void Game::setupGame(Ship& player, std::vector<Enemy>& enemies,
 	enemy_projectiles.clear();
 	
 	game_round = 0;
-	last_game_time = svcGetSystemTick() / SYSCLOCK_ARM11;
+	last_game_time = GetSystemTick() / CLOCK_RATE;
 	score = 0;
 	score_str = "";
 }
@@ -113,8 +119,8 @@ void Game::getHighscore() {
 
 }
 
-u64 Game::gameTime() {
-	return  svcGetSystemTick() / SYSCLOCK_ARM11 - last_game_time;
+uint64_t Game::gameTime() {
+	return GetSystemTick() / CLOCK_RATE - last_game_time;
 }
 
 void Game::drawBackgroundTop() {
@@ -203,7 +209,7 @@ bool Game::checkBulletColission(Projectile* bullet, Ship& player) {
 
 
 	if (collision_Y && collision_X) {
-		Mix_PlayChannel(-1, player_hit, 0);
+		PlayChunkOnChannel(-1, player_hit, 0);
 		player.changeLifeBy(-bullet->getDamage());
 		return true;
 	}
@@ -261,7 +267,7 @@ void Game::changeGameStateTo(GameState state) {
 
 		case SETUP_NEW_ROUND:
 			game_round++;
-			threads[2] = threadCreate(threadWait, (void*)&round_ready, 	STACKSIZE, prio-1, -2, false);
+			threads[2] = CreateThread(threadWait, (void*)&round_ready, 	STACKSIZE, prio-1, -2, false);
 
 		break;
 
@@ -292,7 +298,7 @@ void Game::changeGameStateTo(GameState state) {
 				long int tmp;
 				highscore_file >> tmp;
 
-				u64 tmp_time;
+				uint64_t tmp_time;
 				highscore_file >> tmp_time;
 				highscore_file.close();
 
@@ -336,19 +342,19 @@ void Game::changeGameStateTo(GameState state) {
 void Game::applySettings() {
 
 	if (settings.options[INVERT_X]) {
-		RIGHT	= KEY_LEFT;
-		LEFT	= KEY_RIGHT;
+		RIGHT	= Key::LEFT;
+		LEFT	= Key::RIGHT;
 	} else {
-		RIGHT	= KEY_RIGHT;
-		LEFT	= KEY_LEFT;
+		RIGHT	= Key::RIGHT;
+		LEFT	= Key::LEFT;
 	}
 	
 	if (settings.options[INVERT_Y]) {
-		UP 		= KEY_DOWN;
-		DOWN 	= KEY_UP;
+		UP 		= Key::DOWN;
+		DOWN 	= Key::UP;
 	} else {
-		UP		= KEY_UP;
-		DOWN	= KEY_DOWN;
+		UP		= Key::UP;
+		DOWN	= Key::DOWN;
 	}
 
 }
@@ -373,13 +379,13 @@ void Game::updateScoreOnHit() {
 }
 
 void Game::checkInGamePlayerInput() {
-	if (kDown & KEY_START) {
-		Mix_PauseMusic();
+	if (kDown & Key::START) {
+		PauseMusic();
 		selected_game_option = GAME;
 		game_state = PAUSE;
 	}
 	
-	if (kDown & KEY_A) {
+	if (kDown & Key::A) {
 		if (canShoot) {
 			std::shared_ptr<Projectile> p = player.shoot();
 			p->setDisplayOnBottom(true);
@@ -391,16 +397,17 @@ void Game::checkInGamePlayerInput() {
 	}
 
 	
-	if (kDown & KEY_B) {
+	if (kDown & Key::B) {
 		//player.shootBomb()
 	}
 
-	if (kDown & KEY_R) {
-		// Mix_PlayChannel(-1, pong, 0);
+	if (kDown & Key::R) {
+		// PlayChunkOnChannel(-1, pong, 0);
 
 		player.changeGun();
 		canShoot = true;
 	}
+
 
 	if (kHeld & RIGHT) {
 		move = player.px() + playerVelocityX;
@@ -429,7 +436,7 @@ void Game::checkInGamePlayerInput() {
 
 void Game::drawHealthBar() {
 
-	u32 color;
+	u_int32_t color;
 	float life = player.getLife();
 
 	if (life > 6)
@@ -440,7 +447,7 @@ void Game::drawHealthBar() {
 		color = RED;
 
 	for (int i = 0, x = 10; i < (int)life; ++i, x += 15)
-		C2D_DrawRectangle(x, BOTTOM_SCREEN_HEIGHT - 10, 0, 15, 10, color, color, color, color);
+		DrawRectangle(x, BOTTOM_SCREEN_HEIGHT - 10, 0, 15, 10, color, color, color, color);
 }
 
 void Game::handle_MENU() {
@@ -449,7 +456,7 @@ void Game::handle_MENU() {
 	gameScene::renderScene(top);
 		drawBackgroundTop();
 
-		C2D_DrawRectangle(50,50,0,TOP_SCREEN_WIDTH - 50*2, TOP_SCREEN_HEIGHT - 50*2, C2D_Color32(255,0,0,255), C2D_Color32(255,0,0,255), C2D_Color32(255,0,0,255), C2D_Color32(255,0,0,255));
+		DrawRectangle(50,50,0,TOP_SCREEN_WIDTH - 50*2, TOP_SCREEN_HEIGHT - 50*2, Color32(255,0,0,255), Color32(255,0,0,255), Color32(255,0,0,255), Color32(255,0,0,255));
 		textScene::drawTopMenuText();
 
 	gameScene::renderScene(bottom);
@@ -459,28 +466,28 @@ void Game::handle_MENU() {
 		gameScene::draw(selector.get());
 
 	
-	if (kDown & KEY_A) {
-		Mix_PlayChannel(-1, confirm_select, 0);
+	if (kDown & Key::A) {
+		PlayChunkOnChannel(-1, confirm_select, 0);
 
 		if (menu_options[selected_option_index].state.option == NEXT_SONG) {
-			Mix_HookMusicFinished(playNextSong);
-			Mix_FadeOutMusic(100);
+			HookMusicFinished(playNextSong);
+			FadeOutMusic(100);
 		}
 		else
 			changeGameStateTo(selected_game_option);					
 
 	}
 
-	if (kDown & KEY_UP) {
-		Mix_PlayChannel(-1, move_up_menu, 0);
+	if (kDown & Key::UP) {
+		PlayChunkOnChannel(-1, move_up_menu, 0);
 		
 		selected_option_index = (selected_option_index - 1) % menu_options.size();
 		selected_game_option = menu_options[selected_option_index].state.state;
 		selector->setPos(60, menu_options[selected_option_index].yPos);
 	}
 
-	if (kDown & KEY_DOWN) {
-		Mix_PlayChannel(-1, move_down_menu, 0);
+	if (kDown & Key::DOWN) {
+		PlayChunkOnChannel(-1, move_down_menu, 0);
 		selected_option_index = (selected_option_index + 1) % menu_options.size();
 		selected_game_option = menu_options[selected_option_index].state.state;
 		selector->setPos(60, menu_options[selected_option_index].yPos);
@@ -530,7 +537,7 @@ void Game::handle_GAME() {
 					if (ship_collided != -1) {
 						updateScoreOnHit();
 
-						Mix_PlayChannel(-1, hit, 0);
+						PlayChunkOnChannel(-1, hit, 0);
 						projectiles.erase(projectiles.begin() + i);
 						printf("Colided: %d\tLife: %.1f\n", ship_collided, enemies[ship_collided].getLife());
 						
@@ -595,7 +602,7 @@ void Game::handle_GAME() {
 						enemy_projectiles.erase(enemy_projectiles.begin() + i);							
 						
 						if (player.getLife() <= 0) {
-							Mix_PlayChannel(-1, game_over, 0);
+							PlayChunkOnChannel(-1, game_over, 0);
 							sleep(1);
 							changeGameStateTo(DEAD);
 						}	
@@ -634,7 +641,7 @@ void Game::handle_PAUSE() {
 				gameScene::draw(enemy_projectiles[i].get());	
 		
 		
-		C2D_DrawRectSolid(0,0,0,TOP_SCREEN_WIDTH, TOP_SCREEN_HEIGHT, C2D_Color32(0,0,0,150));
+		DrawRectSolid(0,0,0,TOP_SCREEN_WIDTH, TOP_SCREEN_HEIGHT, Color32(0,0,0,150));
 		textScene::drawPauseMenuTop();
 
 
@@ -654,31 +661,31 @@ void Game::handle_PAUSE() {
 		
 		gameScene::draw(&player);
 
-		C2D_DrawRectSolid(0,0,0,TOP_SCREEN_WIDTH, TOP_SCREEN_HEIGHT, C2D_Color32(0,0,0,150));
+		DrawRectSolid(0,0,0,TOP_SCREEN_WIDTH, TOP_SCREEN_HEIGHT, Color32(0,0,0,150));
 
 		textScene::drawPauseMenuBottom();
 		gameScene::draw(selector.get());
 
 
 
-	if (kDown & KEY_SELECT) {
-		Mix_ResumeMusic();
+	if (kDown & Key::SELECT) {
+		ResumeMusic();
 		changeGameStateTo(GAME);
 	}
 
 
 
-	if (kDown & KEY_A) {
-		Mix_PlayChannel(-1, confirm_select, 0);
+	if (kDown & Key::A) {
+		PlayChunkOnChannel(-1, confirm_select, 0);
 		
 		if (selected_game_option == GAME || selected_game_option == MENU)
-			Mix_ResumeMusic();
+			ResumeMusic();
 
 		changeGameStateTo(selected_game_option);
 	} 
 
-	if (kDown & KEY_UP) {
-		Mix_PlayChannel(-1, move_up_menu, 0);
+	if (kDown & Key::UP) {
+		PlayChunkOnChannel(-1, move_up_menu, 0);
 
 		selected_option_index = (selected_option_index - 1) % pause_options.size();
 		selected_game_option = pause_options[selected_option_index].state.state;
@@ -686,8 +693,8 @@ void Game::handle_PAUSE() {
 
 	}
 
-	if (kDown & KEY_DOWN) {
-		Mix_PlayChannel(-1, move_down_menu, 0);
+	if (kDown & Key::DOWN) {
+		PlayChunkOnChannel(-1, move_down_menu, 0);
 
 		selected_option_index = (selected_option_index + 1) % pause_options.size();
 		selected_game_option = pause_options[selected_option_index].state.state;
@@ -698,21 +705,21 @@ void Game::handle_PAUSE() {
 }
 
 void Game::handle_DEAD() {
-	if (kDown & KEY_UP) {
-		Mix_PlayChannel(-1, move_up_menu, 0);
+	if (kDown & Key::UP) {
+		PlayChunkOnChannel(-1, move_up_menu, 0);
 		selected_game_option = SETUP_GAME;
 		selector->setPos(15, BOTTOM_HEIGHT_CENTER - 25);
 
 	}
 
-	if (kDown & KEY_DOWN) {
-		Mix_PlayChannel(-1, move_down_menu, 0);
+	if (kDown & Key::DOWN) {
+		PlayChunkOnChannel(-1, move_down_menu, 0);
 		selected_game_option = MENU;
 		selector->setPos(15, BOTTOM_HEIGHT_CENTER + 5);
 	}
 
-	if (kDown & KEY_A) {
-		Mix_PlayChannel(-1, confirm_select, 0);
+	if (kDown & Key::A) {
+		PlayChunkOnChannel(-1, confirm_select, 0);
 		selector->setPos(60, BOTTOM_HEIGHT_CENTER - 25);
 		changeGameStateTo(selected_game_option); 
 	}
@@ -733,29 +740,29 @@ void Game::handle_DEAD() {
 }
 
 void Game::handle_SETTINGS() {
-	if ( kDown & KEY_UP) {
-		Mix_PlayChannel(-1, move_up_menu, 0);
+	if ( kDown & Key::UP) {
+		PlayChunkOnChannel(-1, move_up_menu, 0);
 		settings.selected = INVERT_X;
 	}
 
-	if ( kDown & KEY_DOWN) {
-		Mix_PlayChannel(-1, move_down_menu, 0);
+	if ( kDown & Key::DOWN) {
+		PlayChunkOnChannel(-1, move_down_menu, 0);
 		settings.selected = INVERT_Y;
 	}
 
-	if ( kDown & KEY_LEFT) {
-		Mix_PlayChannel(-1, click, 0);
+	if ( kDown & Key::LEFT) {
+		PlayChunkOnChannel(-1, click, 0);
 		settings.options[settings.selected] = NO;
 	}
 
-	if ( kDown & KEY_RIGHT) {
-		Mix_PlayChannel(-1, click, 0);
+	if ( kDown & Key::RIGHT) {
+		PlayChunkOnChannel(-1, click, 0);
 		settings.options[settings.selected] = YES;
 	}
 
 
-	if ( kDown & KEY_B) {
-		Mix_PlayChannel(-1, confirm_select, 0);
+	if ( kDown & Key::B) {
+		PlayChunkOnChannel(-1, confirm_select, 0);
 
 		applySettings();
 
@@ -770,7 +777,7 @@ void Game::handle_SETTINGS() {
 	gameScene::renderScene(top);
 		drawBackgroundTop();
 
-		C2D_DrawRectangle(50,50,0,TOP_SCREEN_WIDTH - 50*2, TOP_SCREEN_HEIGHT - 50*2, C2D_Color32(255,0,0,255), C2D_Color32(255,0,0,255), C2D_Color32(255,0,0,255), C2D_Color32(255,0,0,255));
+		DrawRectangle(50,50,0,TOP_SCREEN_WIDTH - 50*2, TOP_SCREEN_HEIGHT - 50*2, Color32(255,0,0,255), Color32(255,0,0,255), Color32(255,0,0,255), Color32(255,0,0,255));
 		textScene::drawTopMenuText();
 		
 
@@ -781,7 +788,7 @@ void Game::handle_SETTINGS() {
 void Game::handle_SETUP_GAME() {
 	setupGame(player, enemies, projectiles, enemy_projectiles);
 	
-	threads[2] = threadCreate(threadWait, (void*)&round_ready, 	STACKSIZE, prio-1, -2, false);
+	threads[2] = CreateThread(threadWait, (void*)&round_ready, 	STACKSIZE, prio-1, -2, false);
 	changeGameStateTo(SETUP_NEW_ROUND);
 }
 
@@ -820,13 +827,13 @@ void Game::handle_SETUP_NEW_ROUND() {
 }
 
 void Game::start() {
-	while (aptMainLoop()) {
-		hidScanInput();
+	while (ShouldNotCloseWindow()) {
+		ScanInput();
 
-		kDown = hidKeysDown();
-		kHeld = hidKeysHeld();
+		kDown = GetKeysDown();
+		kHeld = GetKeysHeld();
 
-		C2D_Fade(C2D_Color32(0,0,0,fade));
+		Fade(Color32(0,0,0,fade));
 
 		switch (game_state) {
 			case MENU:  			handle_MENU(); 				break;
@@ -839,8 +846,8 @@ void Game::start() {
 		}
 
 			
-		C3D_FrameRate(60);
-		C3D_FrameEnd(0);
-		gspWaitForVBlank();
+		SetFramerate(60);
+		EndFrame(0);
+		waitForVBlank();
 	}
 }

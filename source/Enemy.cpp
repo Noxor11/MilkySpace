@@ -1,4 +1,7 @@
 #include "enemy.h"
+#include "gameSpecification.h"
+#include "global.h"
+#include "scene.h"
 
 #define DEFAULT_ENEMY_LIFE 5
 
@@ -6,20 +9,20 @@
 #define RANDOM_Y (random() % (TOP_SCREEN_HEIGHT - (int) height())) + height()
 
 
-Enemy::Enemy(C2D_SpriteSheet* spriteSheet, int index) 
+Enemy::Enemy(SpriteSheet* spriteSheet, int index) 
     :   Ship::Ship(spriteSheet, index),
         trace({xPos: (float)(RANDOM_X), yPos: (float)(RANDOM_Y)}) {
             this->setLife(DEFAULT_ENEMY_LIFE);
 }
 
 
-Enemy::Enemy(C2D_SpriteSheet* spriteSheet, int index, float xPosition, float yPosition) 
+Enemy::Enemy(SpriteSheet* spriteSheet, int index, float xPosition, float yPosition) 
     :   Ship::Ship(spriteSheet, index, xPosition, yPosition),
         trace({xPos: (float)(RANDOM_X), yPos: (float)(RANDOM_Y)}) {
             this->setLife(DEFAULT_ENEMY_LIFE);
 }
 
-Enemy::Enemy(C2D_Image img) 
+Enemy::Enemy(Image img) 
     :   Ship::Ship(img),
         trace({xPos: (float)(RANDOM_X), yPos: (float)(RANDOM_Y)}) {
             this->setLife(DEFAULT_ENEMY_LIFE);

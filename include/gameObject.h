@@ -1,16 +1,9 @@
 #pragma once
 
-#include <citro2d.h>
+#include "gameSpecification.h"
 
 #include <assert.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <citro2d.h>
-#include <3ds.h>
-#include <string>
-#include <array>
 #include <unistd.h>
 
 
@@ -35,7 +28,7 @@ const int SELECTOR			=	15;
 
 class Object {
 	
-	C2D_Sprite spr;
+	Sprite spr;
 
 public:
 	float px() const;
@@ -57,17 +50,17 @@ public:
 
 	bool followTrace(float x, float y);
 
-	void setImage(C2D_Image img);
-	C2D_Image getImage() const;
-	const C2D_Image* getImagePtr() const;
+	void setImage(Image img);
+	Image getImage() const;
+	const Image* getImagePtr() const;
 
-	C2D_Sprite getSprite() const;
-	const C2D_Sprite* getSpritePtr() const;
+	Sprite getSprite() const;
+	const Sprite* getSpritePtr() const;
 
 	Object(const Object* const object);
-	Object(const C2D_SpriteSheet* const spriteSheet, int index);
-	Object(const C2D_SpriteSheet* const spriteSheet, int index, float xPosition, float yPosition);
-	Object(C2D_Image img);
+	Object(const SpriteSheet* const spriteSheet, int index);
+	Object(const SpriteSheet* const spriteSheet, int index, float xPosition, float yPosition);
+	Object(Image img);
 	Object() = delete;
 
 };

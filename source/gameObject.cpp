@@ -1,5 +1,5 @@
 #include "gameObject.h"
-#include "global.h"
+#include "gameSpecification.h"
 
 
 float Object::px() const{
@@ -47,23 +47,23 @@ void Object::setPos(Object* object) {
 
 }
 
-C2D_Sprite Object::getSprite() const {
+Sprite Object::getSprite() const {
 	return spr;
 }
 
-const C2D_Sprite* Object::getSpritePtr() const {
+const Sprite* Object::getSpritePtr() const {
 	return &spr;
 }
 
-C2D_Image Object::getImage() const {
+Image Object::getImage() const {
 	return spr.image;
 }
 
-const C2D_Image* Object::getImagePtr() const {
+const Image* Object::getImagePtr() const {
 	return &spr.image;
 }
 
-void Object::setImage(C2D_Image img) {
+void Object::setImage(Image img) {
 	spr.image = img; 
 }
 
@@ -138,17 +138,17 @@ bool Object::followTrace(float x, float y) {
 Object::Object(const Object* object) : 
 	Object::Object(*object) {}
 
-Object::Object(const C2D_SpriteSheet* const spriteSheet, int index) : 
+Object::Object(const SpriteSheet* const spriteSheet, int index) : 
 	Object::Object(spriteSheet, index, 0, 0) {}
 
-Object::Object(const C2D_SpriteSheet* const spriteSheet, int index, float xPosition, float yPosition) {
-	C2D_SpriteFromSheet(&spr, *spriteSheet, index);
-	C2D_SpriteSetCenter(&spr, 0.5f, 0.5f);
+Object::Object(const SpriteSheet* const spriteSheet, int index, float xPosition, float yPosition) {
+	SpriteFromSheet(&spr, *spriteSheet, index);
+	SpriteSetCenter(&spr, 0.5f, 0.5f);
 	setPos(xPosition, yPosition);}
 
-Object::Object(C2D_Image img) {
-	C2D_SpriteFromImage(&spr, img);
-	C2D_SpriteSetCenter(&spr, 0.5f, 0.5f);
+Object::Object(Image img) {
+	SpriteFromImage(&spr, img);
+	SpriteSetCenter(&spr, 0.5f, 0.5f);
     setPos(0,0);
 }
 

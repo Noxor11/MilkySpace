@@ -6,3 +6,6 @@ build
 *.cia
 *.lst
 .vscode
+.cache
+compile_commands.json
+.clangd

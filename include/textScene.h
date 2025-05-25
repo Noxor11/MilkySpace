@@ -1,11 +1,7 @@
 #pragma once
 #include "scene.h"
 
-#include <charconv>
-#include <unordered_map>
-#include <array>
 #include <string>
-#include <jansson.h>
 
 struct Settings;
 
@@ -36,9 +32,13 @@ namespace textScene {
     //  Settings
     #define INVERT_X 	    19
     #define INVERT_Y 	    20
+
+
+
+    #define TEXT_LINES 21
     
-    void initTextScene(u8 language_code);   
-    void initLanguageFonts(u8 language_code); 
+    Result initTextScene();   
+    void initLanguageFonts(uint8_t language_code); 
     void drawTopMenuText();
     void drawBottomMenuText();
     

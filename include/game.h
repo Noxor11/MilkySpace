@@ -1,7 +1,16 @@
 #pragma once
+
+#include "gameSpecification.h"
 #include "gameObject.h"
 #include "ship.h"
+#include "textScene.h"
 #include "enemy.h"
+
+#include <array>
+#include <iosfwd>
+#include <fstream>
+#include <sys/types.h>
+#include "vector"
 
 #define SCORE_FOLDER 	"/3ds/MilkySpace"
 #define SCORE_FILE		SCORE_FOLDER "/score"
@@ -39,7 +48,7 @@ class Game {
 
     bool round_ready = false;
 
-    u64 timeOfDeath;
+    u_int64_t timeOfDeath;
 
 
     std::array<selection, 3> menu_options;
@@ -48,12 +57,12 @@ class Game {
 
     std::shared_ptr<Object> selector;
 
-    s32 prio = 0;
+    int32_t prio = 0;
 
 
     int game_round = 1;
 
-    u64 last_game_time = svcGetSystemTick() / SYSCLOCK_ARM11;
+    u_int64_t last_game_time = GetSystemTick() / CLOCK_RATE;
 
     long long unsigned int score = 0;
     long long unsigned int highscore 	= 0;
@@ -62,7 +71,7 @@ class Game {
 
 
     std::fstream highscore_file;
-    u64 best_time 		= 0;
+    u_int64_t best_time 		= 0;
 
 
 
@@ -70,14 +79,14 @@ class Game {
     float playerVelocityY = 5;
 
 
-    long long int UP 	= KEY_UP;
-    long long int DOWN 	= KEY_DOWN;
-    long long int RIGHT = KEY_RIGHT;
-    long long int LEFT 	= KEY_LEFT;
+    Key UP 	    = Key::UP;
+    Key DOWN 	= Key::DOWN;
+    Key RIGHT   = Key::RIGHT;
+    Key LEFT 	= Key::LEFT;
 
 
-    u32 kDown;
-	u32 kHeld;
+    u_int32_t kDown;
+	u_int32_t kHeld;
 
 
 	float move = 0;
@@ -105,8 +114,8 @@ class Game {
     std::vector<std::shared_ptr<Projectile>> projectiles;
     std::vector<std::shared_ptr<Projectile>> enemy_projectiles;
 
-    C3D_RenderTarget* top;
-    C3D_RenderTarget* bottom;
+    RenderTarget* top;
+    RenderTarget* bottom;
 
     std::vector<Enemy> enemies;
 
@@ -127,7 +136,7 @@ private:
 
     void getHighscore();
 
-    u64 gameTime();
+    u_int64_t gameTime();
 
     void startNewRound(std::vector<Enemy>& enemies);
 
