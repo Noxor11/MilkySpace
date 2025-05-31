@@ -9,3 +9,4 @@ build
 .cache
 compile_commands.json
 .clangd
+node_modules/

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MilkySpace WASM Test</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        canvas {
+            border: 1px solid #444;
+            margin: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        #debug {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            padding: 10px;
+            margin: 10px;
+            width: 80%;
+            max-width: 800px;
+            font-family: monospace;
+            white-space: pre;
+            overflow: auto;
+            max-height: 200px;
+        }
+        h1 {
+            color: #0f0;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+        button {
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0c0;
+        }
+    </style>
+</head>
+<body>
+    <h1>MilkySpace WASM Test</h1>
+    <div>
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </div>
+    <div>
+        <button id="debugBtn">Print Debug Info</button>
+    </div>
+    <div id="debug">Debug output will appear here...</div>
+
+    <script>
+        // Debug log function
+        const debugElement = document.getElementById('debug');
+        function log(message) {
+            console.log(message);
+            debugElement.textContent += message + '\n';
+            if (debugElement.textContent.split('\n').length > 50) {
+                const lines = debugElement.textContent.split('\n');
+                debugElement.textContent = lines.slice(lines.length - 50).join('\n');
+            }
+        }
+
+        // Create module configuration
+        var Module = {
+            canvas: document.getElementById('canvas'),
+            print: function(text) { 
+                log("[WASM] " + text);
+            },
+            printErr: function(text) {
+                log("[WASM ERROR] " + text);
+            },
+            onRuntimeInitialized: function() {
+                log("WASM runtime initialized successfully!");
+                
+                try {
+                    // Initialize the game
+                    log("Calling initGame()...");
+                    if (typeof Module._initGame === 'function') {
+                        Module._initGame();
+                        log("Game initialized successfully!");
+                    } else {
+                        log("Error: initGame function not found");
+                        // Try alternative function names
+                        if (typeof Module.ccall === 'function') {
+                            log("Trying ccall...");
+                            const result = Module.ccall('initGame', 'number', [], []);
+                            log("initGame result: " + result);
+                        } else {
+                            log("ccall not available");
+                        }
+                    }
+                } catch (e) {
+                    log("Error initializing game: " + e);
+                }
+                
+                // Set up event handlers after initialization
+                document.addEventListener('keydown', function(event) {
+                    try {
+                        if (typeof Module._handle_key_down === 'function') {
+                            Module._handle_key_down(event.keyCode);
+                        }
+                    } catch (e) {
+                        log("Error in keydown handler: " + e);
+                    }
+                });
+                
+                document.addEventListener('keyup', function(event) {
+                    try {
+                        if (typeof Module._handle_key_up === 'function') {
+                            Module._handle_key_up(event.keyCode);
+                        }
+                    } catch (e) {
+                        log("Error in keyup handler: " + e);
+                    }
+                });
+                
+                // Set up debug button
+                document.getElementById('debugBtn').addEventListener('click', function() {
+                    log("--- Debug Information ---");
+                    log("Module functions:");
+                    for (const key in Module) {
+                        if (typeof Module[key] === 'function' && !key.startsWith('_')) {
+                            log("  " + key);
+                        }
+                    }
+                    
+                    log("Exported WASM functions:");
+                    for (const key in Module) {
+                        if (typeof Module[key] === 'function' && key.startsWith('_')) {
+                            log("  " + key);
+                        }
+                    }
+                });
+            }
+        };
+    </script>
+
+    <!-- Load the WebAssembly module -->
+    <script>
+        log("Starting to load WASM module...");
+        
+        // Add error handling for script loading
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    log("Script loaded: " + src);
+                    resolve();
+                };
+                script.onerror = () => {
+                    const error = "Failed to load script: " + src;
+                    log(error);
+                    reject(new Error(error));
+                };
+                document.body.appendChild(script);
+            });
+        }
+        
+        // Try to load the module
+        loadScript('./build/MilkySpace.js')
+            .then(() => {
+                log("MilkySpace.js loaded successfully");
+            })
+            .catch(error => {
+                log("Failed to load MilkySpace.js: " + error);
+                // Try alternative paths
+                return loadScript('./MilkySpace.js');
+            })
+            .catch(error => {
+                log("All attempts to load MilkySpace.js failed.");
+                log("Please check that the file exists and is accessible.");
+                log("You might need to run 'make -f Makefile.wasm' to generate it.");
+            });
+    </script>
+</body>
+</html>

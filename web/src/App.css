@@ -1,0 +1,54 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+header {
+  background-color: #222;
+  color: white;
+  padding: 0.5rem;
+  text-align: center;
+  z-index: 10;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: #000;
+}
+
+footer {
+  background-color: #222;
+  color: white;
+  padding: 0.25rem;
+  text-align: center;
+  font-size: 0.7rem;
+  z-index: 10;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.wasm-game-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

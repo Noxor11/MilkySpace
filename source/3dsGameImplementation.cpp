@@ -108,8 +108,12 @@
     //     C2D_DrawText(text, flags, x, y, z, scaleX, scaleY);
     // }
 
-    void DrawText(const Text* text, uint32_t flags, float x, float y, float z, float scaleX, float scaleY) {
-        C2D_DrawText(text, flags, x, y, z, scaleX, scaleY);
+    void DrawText(const Text* text, uint32_t flags, float x, float y, float z, float scaleX, float scaleY, u32 color) {
+
+        if (flags & C2D_WithColor)
+            C2D_DrawText(text, flags, x, y, 0.0f,scaleX,scaleY, color);
+        else
+            C2D_DrawText(text, flags, x, y, 0.0f,scaleX,scaleY);
     }
 
 

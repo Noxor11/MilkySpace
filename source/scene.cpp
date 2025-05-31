@@ -43,6 +43,7 @@ namespace gameScene {
 	}
 
 	void stopScene() {
+		puts("stopping scene...");
 		exitThreads();
 		ExitGraphics();
 	}

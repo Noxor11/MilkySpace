@@ -39,7 +39,7 @@ class Game {
         int yPos;
     };
 
-    GameState game_state 			= MENU; 
+    GameState game_state 			= MENU;
     GameState selected_game_option 	= SETUP_GAME;
     bool gameOnPlay = false;
     int selected_option_index = 0;
@@ -52,7 +52,7 @@ class Game {
 
 
     std::array<selection, 3> menu_options;
-    std::array<selection, 3> pause_options; 
+    std::array<selection, 3> pause_options;
 
 
     std::shared_ptr<Object> selector;
@@ -123,8 +123,13 @@ class Game {
 
 public:
     Game();
+    ~Game();
 
-    void start();
+    bool start();
+
+    // For WASM main loop
+    void update();
+    void render();
 
 private:
 

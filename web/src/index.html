@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MilkySpace WebAssembly</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #000; color: #fff; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(to bottom, #000000, #0c0c3c); }
+        canvas { border: 1px solid #333; margin-bottom: 20px; }
+        #canvasTopScreen { box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); background-color: rgba(0, 0, 0, 0.8); }
+        #canvasBottomScreen { box-shadow: 0 0 20px rgba(0, 0, 255, 0.3); background-color: rgba(0, 0, 0, 0.6); }
+        .canvas-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .controls { margin-top: 10px; text-align: center; }
+        .controls p { margin: 5px 0; color: #aaa; }
+        button { background-color: #4CAF50; border: none; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; }
+        button:hover { background-color: #45a049; }
+        .game-stats { display: flex; flex-wrap: wrap; justify-content: space-around; width: 800px; margin-bottom: 10px; background-color: rgba(0, 0, 0, 0.7); border-radius: 5px; padding: 10px; box-shadow: 0 0 10px rgba(0, 255, 0, 0.2); }
+        .game-stats div { font-size: 18px; font-weight: bold; margin: 5px 10px; text-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+        #score { color: #FFD700; }
+        #level { color: #00FFFF; }
+        #health { color: #00FF00; }
+        #enemies { color: #FF6347; }
+        h1 { text-shadow: 0 0 10px rgba(0, 255, 0, 0.7); color: #0f0; margin-bottom: 20px; }
+        .game-container { display: flex; flex-direction: column; align-items: center; animation: pulse 5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>MilkySpace WASM Demo</h1>
+        <div class="game-stats">
+            <div id="score">Score: 0</div>
+            <div id="level">Level: 1</div>
+            <div id="health">Health: 100%</div>
+            <div id="enemies">Enemies: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="canvasTopScreen" width="800" height="600"></canvas>
+            <canvas id="canvasBottomScreen" width="800" height="600"></canvas>
+        </div>
+        <div class="controls">
+            <button id="reset">Reset Game</button>
+            <p>Use arrow keys to move, space to shoot</p>
+            <p>Press Space to restart when game over</p>
+        </div>
+    </div>
+
+    <script>
+        function debugCanvasSetup() {
+            console.log("Debug: Canvas Setup Check");
+            console.log("Top Canvas:", Module.canvasTopScreen);
+            console.log("Bottom Canvas:", Module.canvasBottomScreen);
+            if (Module.canvasTopScreen === Module.canvasBottomScreen) {
+                console.error("ERROR: Both canvases are the same object!");
+            }
+            if (!Module.canvasTopScreen || !Module.canvasBottomScreen) {
+                console.error("ERROR: One or both canvases are null!");
+            }
+        }
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: function(text) { console.log("stdout:", text); },
+            printErr: function(text) { console.error("stderr:", text); },
+            canvas: (function() {
+                var canvas = document.getElementById("canvasTopScreen");
+                return canvas;
+            })(),
+            canvasTopScreen: document.getElementById("canvasTopScreen"),
+            canvasBottomScreen: document.getElementById("canvasBottomScreen"),
+            onRuntimeInitialized: function() {
+                debugCanvasSetup();
+                console.log("WASM runtime initialized");
+                document.addEventListener("keydown", function(event) {
+                    Module._handle_key_down(event.keyCode);
+                });
+                document.addEventListener("keyup", function(event) {
+                    Module._handle_key_up(event.keyCode);
+                });
+                document.getElementById("reset").addEventListener("click", function() {
+                    Module._reset_game();
+                });
+                setInterval(function() {
+                    var score = Module._get_score();
+                    var level = Module._get_level();
+                    var health = Module._get_health();
+                    var enemies = Module._get_enemy_count();
+                    var gameOver = Module._is_game_over();
+                    if (gameOver) {
+                        document.getElementById("canvasTopScreen").style.boxShadow = "0 0 20px rgba(255, 0, 0, 0.5)";
+                    } else {
+                        document.getElementById("canvasTopScreen").style.boxShadow = "0 0 20px rgba(0, 255, 0, 0.3)";
+                    }
+                }, 100);
+            }
+        };
+    </script>
+    <script src="MilkySpace.js"></script>
+</body>
+</html>

@@ -1,31 +1,141 @@
-# Makefile to compile C++ source files to a WebAssembly library using Emscripten
+# Minimal Makefile to compile C++ files to WebAssembly using Emscripten
 
 # Directories
 SRC_DIR := source
 INC_DIR := include
 BUILD_DIR := build
-OUT_FILE := $(BUILD_DIR)/MilkySpace.wasm
+OUT_FILE := $(BUILD_DIR)/MilkySpace.js
 
 # Tools
 EMCC := emcc
 
 # Compiler flags
-CXXFLAGS := -O3 -std=c++17 -D__WASM__ -fPIC -I$(INC_DIR)
+CXXFLAGS := -O2 -std=c++17 -D__WASM__ -I$(INC_DIR)
+# Linker flags
+LDFLAGS := --bind \
+	-s ALLOW_MEMORY_GROWTH=1
+EMCCFLAGS := -s WASM=1 \
+	-s MODULARIZE=1 \
+	-s EXPORT_NAME="MilkySpace" \
+	-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] \
+	-s EXPORTED_FUNCTIONS=['_main','_malloc','_free']
 
-# Sources and objects
+# Source files
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
 
 # Default target
-all: $(OUT_FILE)
+all: $(OUT_FILE) html
 
-# Build output wasm
-$(OUT_FILE): $(OBJECTS)
-	$(EMCC) $(CXXFLAGS) -s WASM=1 -s SIDE_MODULE=1 -o $@ $^
+# Build output JS + WASM
+$(OUT_FILE): $(SOURCES) | $(BUILD_DIR)
+	@echo "Compiling to WebAssembly..."
+	$(EMCC) $(CXXFLAGS) $(EMCCFLAGS) $(LDFLAGS) -o $@ $^
+	@echo "WebAssembly module built successfully"
 
-# Compile source to object files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	$(EMCC) $(CXXFLAGS) -c $< -o $@
+# Create HTML file
+html: | $(BUILD_DIR)
+	@echo "Creating index.html..."
+	@echo '<!DOCTYPE html>' > $(BUILD_DIR)/index.html
+	@echo '<html lang="en">' >> $(BUILD_DIR)/index.html
+	@echo '<head>' >> $(BUILD_DIR)/index.html
+	@echo '    <meta charset="UTF-8">' >> $(BUILD_DIR)/index.html
+	@echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' >> $(BUILD_DIR)/index.html
+	@echo '    <title>MilkySpace WebAssembly</title>' >> $(BUILD_DIR)/index.html
+	@echo '    <style>' >> $(BUILD_DIR)/index.html
+	@echo '        body { margin: 0; padding: 0; overflow: hidden; background-color: #000; color: #fff; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(to bottom, #000000, #0c0c3c); }' >> $(BUILD_DIR)/index.html
+	@echo '        canvas { border: 1px solid #333; margin-bottom: 20px; }' >> $(BUILD_DIR)/index.html
+	@echo '        #canvasTopScreen { box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); background-color: rgba(0, 0, 0, 0.8); }' >> $(BUILD_DIR)/index.html
+	@echo '        #canvasBottomScreen { box-shadow: 0 0 20px rgba(0, 0, 255, 0.3); background-color: rgba(0, 0, 0, 0.6); }' >> $(BUILD_DIR)/index.html
+	@echo '        .canvas-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }' >> $(BUILD_DIR)/index.html
+	@echo '        .controls { margin-top: 10px; text-align: center; }' >> $(BUILD_DIR)/index.html
+	@echo '        .controls p { margin: 5px 0; color: #aaa; }' >> $(BUILD_DIR)/index.html
+	@echo '        button { background-color: #4CAF50; border: none; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 4px; }' >> $(BUILD_DIR)/index.html
+	@echo '        button:hover { background-color: #45a049; }' >> $(BUILD_DIR)/index.html
+	@echo '        .game-stats { display: flex; flex-wrap: wrap; justify-content: space-around; width: 800px; margin-bottom: 10px; background-color: rgba(0, 0, 0, 0.7); border-radius: 5px; padding: 10px; box-shadow: 0 0 10px rgba(0, 255, 0, 0.2); }' >> $(BUILD_DIR)/index.html
+	@echo '        .game-stats div { font-size: 18px; font-weight: bold; margin: 5px 10px; text-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }' >> $(BUILD_DIR)/index.html
+	@echo '        #score { color: #FFD700; }' >> $(BUILD_DIR)/index.html
+	@echo '        #level { color: #00FFFF; }' >> $(BUILD_DIR)/index.html
+	@echo '        #health { color: #00FF00; }' >> $(BUILD_DIR)/index.html
+	@echo '        #enemies { color: #FF6347; }' >> $(BUILD_DIR)/index.html
+	@echo '        h1 { text-shadow: 0 0 10px rgba(0, 255, 0, 0.7); color: #0f0; margin-bottom: 20px; }' >> $(BUILD_DIR)/index.html
+	@echo '        .game-container { display: flex; flex-direction: column; align-items: center; animation: pulse 5s infinite; }' >> $(BUILD_DIR)/index.html
+	@echo '        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }' >> $(BUILD_DIR)/index.html
+	@echo '    </style>' >> $(BUILD_DIR)/index.html
+	@echo '</head>' >> $(BUILD_DIR)/index.html
+	@echo '<body>' >> $(BUILD_DIR)/index.html
+	@echo '    <div class="game-container">' >> $(BUILD_DIR)/index.html
+	@echo '        <h1>MilkySpace WASM Demo</h1>' >> $(BUILD_DIR)/index.html
+	@echo '        <div class="game-stats">' >> $(BUILD_DIR)/index.html
+	@echo '            <div id="score">Score: 0</div>' >> $(BUILD_DIR)/index.html
+	@echo '            <div id="level">Level: 1</div>' >> $(BUILD_DIR)/index.html
+	@echo '            <div id="health">Health: 100%</div>' >> $(BUILD_DIR)/index.html
+	@echo '            <div id="enemies">Enemies: 0</div>' >> $(BUILD_DIR)/index.html
+	@echo '        </div>' >> $(BUILD_DIR)/index.html
+	@echo '        <div class="canvas-container">' >> $(BUILD_DIR)/index.html
+	@echo '            <canvas id="canvasTopScreen" width="800" height="600"></canvas>' >> $(BUILD_DIR)/index.html
+	@echo '            <canvas id="canvasBottomScreen" width="800" height="600"></canvas>' >> $(BUILD_DIR)/index.html
+	@echo '        </div>' >> $(BUILD_DIR)/index.html
+	@echo '        <div class="controls">' >> $(BUILD_DIR)/index.html
+	@echo '            <button id="reset">Reset Game</button>' >> $(BUILD_DIR)/index.html
+	@echo '            <p>Use arrow keys to move, space to shoot</p>' >> $(BUILD_DIR)/index.html
+	@echo '            <p>Press Space to restart when game over</p>' >> $(BUILD_DIR)/index.html
+	@echo '        </div>' >> $(BUILD_DIR)/index.html
+	@echo '    </div>' >> $(BUILD_DIR)/index.html
+	@echo '' >> $(BUILD_DIR)/index.html
+	@echo '    <script>' >> $(BUILD_DIR)/index.html
+	@echo '        function debugCanvasSetup() {' >> $(BUILD_DIR)/index.html
+	@echo '            console.log("Debug: Canvas Setup Check");' >> $(BUILD_DIR)/index.html
+	@echo '            console.log("Top Canvas:", Module.canvasTopScreen);' >> $(BUILD_DIR)/index.html
+	@echo '            console.log("Bottom Canvas:", Module.canvasBottomScreen);' >> $(BUILD_DIR)/index.html
+	@echo '            if (Module.canvasTopScreen === Module.canvasBottomScreen) {' >> $(BUILD_DIR)/index.html
+	@echo '                console.error("ERROR: Both canvases are the same object!");' >> $(BUILD_DIR)/index.html
+	@echo '            }' >> $(BUILD_DIR)/index.html
+	@echo '            if (!Module.canvasTopScreen || !Module.canvasBottomScreen) {' >> $(BUILD_DIR)/index.html
+	@echo '                console.error("ERROR: One or both canvases are null!");' >> $(BUILD_DIR)/index.html
+	@echo '            }' >> $(BUILD_DIR)/index.html
+	@echo '        }' >> $(BUILD_DIR)/index.html
+	@echo '        var Module = {' >> $(BUILD_DIR)/index.html
+	@echo '            preRun: [],' >> $(BUILD_DIR)/index.html
+	@echo '            postRun: [],' >> $(BUILD_DIR)/index.html
+	@echo '            print: function(text) { console.log("stdout:", text); },' >> $(BUILD_DIR)/index.html
+	@echo '            printErr: function(text) { console.error("stderr:", text); },' >> $(BUILD_DIR)/index.html
+	@echo '            canvas: (function() {' >> $(BUILD_DIR)/index.html
+	@echo '                var canvas = document.getElementById("canvasTopScreen");' >> $(BUILD_DIR)/index.html
+	@echo '                return canvas;' >> $(BUILD_DIR)/index.html
+	@echo '            })(),' >> $(BUILD_DIR)/index.html
+	@echo '            canvasTopScreen: document.getElementById("canvasTopScreen"),' >> $(BUILD_DIR)/index.html
+	@echo '            canvasBottomScreen: document.getElementById("canvasBottomScreen"),' >> $(BUILD_DIR)/index.html
+	@echo '            onRuntimeInitialized: function() {' >> $(BUILD_DIR)/index.html
+	@echo '                debugCanvasSetup();' >> $(BUILD_DIR)/index.html
+	@echo '                console.log("WASM runtime initialized");' >> $(BUILD_DIR)/index.html
+	@echo '                document.addEventListener("keydown", function(event) {' >> $(BUILD_DIR)/index.html
+	@echo '                    Module._handle_key_down(event.keyCode);' >> $(BUILD_DIR)/index.html
+	@echo '                });' >> $(BUILD_DIR)/index.html
+	@echo '                document.addEventListener("keyup", function(event) {' >> $(BUILD_DIR)/index.html
+	@echo '                    Module._handle_key_up(event.keyCode);' >> $(BUILD_DIR)/index.html
+	@echo '                });' >> $(BUILD_DIR)/index.html
+	@echo '                document.getElementById("reset").addEventListener("click", function() {' >> $(BUILD_DIR)/index.html
+	@echo '                    Module._reset_game();' >> $(BUILD_DIR)/index.html
+	@echo '                });' >> $(BUILD_DIR)/index.html
+	@echo '                setInterval(function() {' >> $(BUILD_DIR)/index.html
+	@echo '                    var score = Module._get_score();' >> $(BUILD_DIR)/index.html
+	@echo '                    var level = Module._get_level();' >> $(BUILD_DIR)/index.html
+	@echo '                    var health = Module._get_health();' >> $(BUILD_DIR)/index.html
+	@echo '                    var enemies = Module._get_enemy_count();' >> $(BUILD_DIR)/index.html
+	@echo '                    var gameOver = Module._is_game_over();' >> $(BUILD_DIR)/index.html
+	@echo '                    if (gameOver) {' >> $(BUILD_DIR)/index.html
+	@echo '                        document.getElementById("canvasTopScreen").style.boxShadow = "0 0 20px rgba(255, 0, 0, 0.5)";' >> $(BUILD_DIR)/index.html
+	@echo '                    } else {' >> $(BUILD_DIR)/index.html
+	@echo '                        document.getElementById("canvasTopScreen").style.boxShadow = "0 0 20px rgba(0, 255, 0, 0.3)";' >> $(BUILD_DIR)/index.html
+	@echo '                    }' >> $(BUILD_DIR)/index.html
+	@echo '                }, 100);' >> $(BUILD_DIR)/index.html
+	@echo '            }' >> $(BUILD_DIR)/index.html
+	@echo '        };' >> $(BUILD_DIR)/index.html
+	@echo '    </script>' >> $(BUILD_DIR)/index.html
+	@echo '    <script src="MilkySpace.js"></script>' >> $(BUILD_DIR)/index.html
+	@echo '</body>' >> $(BUILD_DIR)/index.html
+	@echo '</html>' >> $(BUILD_DIR)/index.html
+	@echo "Index.html created successfully"
 
 # Create build directory if not exists
 $(BUILD_DIR):
@@ -33,6 +143,12 @@ $(BUILD_DIR):
 
 # Clean build
 clean:
+	@echo "Cleaning build files..."
 	rm -rf $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
 
-.PHONY: all clean
+# Run with emrun
+run: all
+	emrun --browser firefox $(BUILD_DIR)/index.html || emrun --browser chrome $(BUILD_DIR)/index.html || emrun $(BUILD_DIR)/index.html
+
+.PHONY: all clean run html

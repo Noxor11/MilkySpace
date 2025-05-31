@@ -93,7 +93,6 @@ enum Key: unsigned int {
     const auto CLOCK_RATE = SYSCLOCK_ARM11;
 
     // input
-    
 
 #endif
 
@@ -121,7 +120,11 @@ enum Key: unsigned int {
 
     typedef void* SpriteSheet;
     typedef void* Image;
-    typedef void* RenderTarget;
+
+    struct alignas(8) RenderTarget {
+        Screen screen;
+        ScreenSide screenSide;
+    };
 
     typedef void* Font;
     typedef void* TextBuf;
@@ -140,10 +143,13 @@ enum Key: unsigned int {
     typedef void* Mix_Chunk;
     typedef void* Mix_Music;
 
-    const auto CLOCK_RATE = 1;
+    const auto CLOCK_RATE = 1; // this is not really correct
 
 #endif
 
+#ifdef __WASM__
+extern "C" {
+#endif
     void Fade(unsigned int color);
     uint32_t Color32(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     uint32_t Color32f(float r, float g, float b, float a);
@@ -165,21 +171,13 @@ enum Key: unsigned int {
     bool DrawRectangle(
         float x, float y, float z, float w, float h,
         uint32_t clr0, uint32_t clr1, uint32_t clr2, uint32_t clr3);
-    
+
     bool DrawRectSolid(float x, float y, float z, float w, float h, uint32_t clr);
     bool DrawSprite(const Sprite* sprite);
 
     // void DrawText(const Text* text, uint32_t flags, float x, float y, float z, float scaleX, float scaleY, ...);
-    void DrawText(const Text* text, uint32_t flags, float x, float y, float z, float scaleX, float scaleY);
-    // ----- variadic arguments cannot be taken and passed through by a function. ---
-    #define _GET_DRAW_TEXT_MACRO(_1,_2,_3,_4,_5,_6,_7,_8,NAME,...) NAME
-    // #define DrawTextWithParameters(text, flags, x, y, z, scaleX, scaleY, ...) \
-    //     DrawText(text, flags, x, y, z, scaleX, scaleY, __VA_ARGS__)
-    #define DrawTextWithoutParameters(text, flags, x, y, z, scaleX, scaleY, ...) \
-        DrawText(text, flags, x, y, z, scaleX, scaleY)
+    void DrawText(const Text* text, uint32_t flags, float x, float y, float z, float scaleX, float scaleY, uint32_t color = 0x000000);
 
-    #define DrawText(...) \
-        _GET_DRAW_TEXT_MACRO(__VA_ARGS__, DrawTextWithoutParameters, DrawTextWithoutParameters)(__VA_ARGS__)
     // ------------------------------------------------------------------------------
 
     const char* TextFontParse(Text* text, Font font, TextBuf buf, const char* str);
@@ -236,3 +234,7 @@ enum Key: unsigned int {
     int32_t GetKeysDown();
     int32_t GetKeysHeld();
 //}
+
+#ifdef __WASM__
+} // extern "C"
+#endif
