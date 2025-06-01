@@ -237,7 +237,7 @@
 // }
 
 // namespace Audio {
-    void PlayChunkOnChannel(uint8_t channel, Mix_Chunk* chunk, int loops) {}
+    void PlayChunkOnChannel(int8_t channel, Mix_Chunk* chunk, int loops) {}
     void PlayMusic(Mix_Music* music, int loops) {}
     void HookMusicFinished(MusicFunction func) {}
     void PauseMusic() {}

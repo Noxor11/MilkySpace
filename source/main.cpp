@@ -5,7 +5,6 @@
 #ifdef __wasm__
 #include <emscripten/emscripten.h>
 
-Game* game = nullptr;
 
 EMSCRIPTEN_KEEPALIVE
 void start_game(void* game) {
@@ -17,6 +16,7 @@ void start_game(void* game) {
 
 #endif
 
+Game* game = nullptr;
 
 int main() {
 

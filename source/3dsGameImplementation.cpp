@@ -146,7 +146,7 @@
         return svcGetSystemTick();
     }
 
-    void PlayChunkOnChannel(uint8_t channel, Mix_Chunk* chunk, int loops) {
+    void PlayChunkOnChannel(int8_t channel, Mix_Chunk* chunk, int loops) {
         Mix_PlayChannel(channel, chunk, loops);
     }
 
@@ -268,7 +268,7 @@
 		spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
 		if (!spriteSheet) 
 			return -4;
-		
+
         return 0;
     }
 
@@ -413,7 +413,7 @@
 		gfxExit();
 		textScene::exitTextScene();
 		romfsExit();
-		
+
 		// Delete graphics
 		C2D_SpriteSheetFree(spriteSheet);
     }
